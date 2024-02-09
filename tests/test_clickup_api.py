@@ -1,0 +1,326 @@
+import datetime
+import unittest
+from typing import Any
+from unittest.mock import patch
+
+from clickup_api.clickup_api import ClickUpAPI
+from clickup_api.exceptions import DateDataError, DateSequenceError
+from dotenv import load_dotenv
+from parameterized import parameterized
+
+load_dotenv()
+
+
+class TestClickUpAPICore(unittest.TestCase):
+
+    def test_initiate_class_instance_successful(self):
+        token = "TokenRandomCode123"
+        sample = ClickUpAPI(token)
+        self.assertTrue(sample.__dict__)
+        self.assertIsInstance(sample, ClickUpAPI)
+
+    def test_empty_token_at_instance_initiation_raises_error(self):
+        with self.assertRaises(TypeError):
+            ClickUpAPI()
+
+    @parameterized.expand(
+        [
+            ("Token as an empty string", "", ValueError),
+            ("Token as a boolean type", True, TypeError),
+            ("Token as a list", ["value"], TypeError),
+            ("Token as a None value", None, TypeError),
+            ("Token as a dict", {"token": "ABCD1234"}, TypeError),
+        ]
+    )
+    def test_check_token_static_method_validation_raises_error(
+        self, name: str, token: Any, error: Exception
+    ):
+        with self.assertRaises(error):
+            ClickUpAPI.check_token(token)
+
+    def test_check_token_static_method_validation_correct_values(self):
+        self.assertEqual(ClickUpAPI.check_token("TokenRandomCode123"), None)
+
+    @parameterized.expand(
+        [
+            ("Token as a boolean type", True, TypeError),
+            ("Token as a list", ["value"], TypeError),
+            ("Token as a None value", None, TypeError),
+            ("Token as an empty string", "", ValueError),
+            ("Token as a dict", {"token": "ABCD1234"}, TypeError),
+        ]
+    )
+    def test_invalid_token_at_instance_initiation_raises_error(
+        self, name: str, token: Any, error: Exception
+    ):
+        with self.assertRaises(error):
+            ClickUpAPI(token)
+
+    @parameterized.expand(
+        [
+            ("Token as an empty string", "", ValueError),
+            ("Invalid type of token - float", 123456.99, TypeError),
+            ("Invalid type of token - None", None, TypeError),
+            ("Invalid type of token - boolean", True, TypeError),
+        ]
+    )
+    def test_token_setter_method_validation_is_correct(
+        self, name: str, token: Any, error: Exception
+    ):
+        initial_token = "TokenRandomCode123"
+        sample = ClickUpAPI(initial_token)
+        with self.assertRaises(error):
+            sample.token = token
+
+    def test_available_statuses_initial_list(self):
+        available_statuses = [
+            "nowe",
+            "w trakcie",
+            "oczekujące",
+            "odrzucone",
+            "gotowe",
+            "zamknięte",
+        ]
+        self.assertEqual(ClickUpAPI.available_statuses, available_statuses)
+
+    def test_class_constant_api_default_url_correct_value(self):
+        api_default_url = "https://app.clickup.com/api/v2/"
+        self.assertEqual(ClickUpAPI._API_DEFAULT_URL, api_default_url)
+
+    def test_default_url_initial_value(self):
+        sample = ClickUpAPI("token")
+        expected_url = "https://app.clickup.com/api/v2/"
+        self.assertEqual(sample.api_url, expected_url)
+
+    @parameterized.expand(
+        [
+            ("Valid url", "https://clickup.com/api/", True),
+            ("No http", "clickup.com/api/", False),
+            ("Empty string as an url", "", False),
+        ]
+    )
+    def test_is_url_static_method_validation_is_correct(
+        self, name: str, url: str, result: bool
+    ):
+        self.assertEqual(ClickUpAPI.is_url(url), result)
+
+    @parameterized.expand(
+        [
+            ("No http", "clickup.com/api/", ValueError),
+            ("Empty string as an url", "", ValueError),
+            ("Invalid type of url address - int", 123456, TypeError),
+        ]
+    )
+    def test_invalid_api_url_at_instance_initiation_raises_error(
+        self, name: str, url: str, error: Exception
+    ):
+        token = "TokenRandomCode123"
+        with self.assertRaises(error):
+            ClickUpAPI(token, url)
+
+    @parameterized.expand(
+        [
+            ("No http", "clickup.com/api/", ValueError),
+            ("Empty string as an url", "", ValueError),
+            ("Invalid type of url address - int", 123456, TypeError),
+        ]
+    )
+    def test_api_url_setter_method_validation_is_correct_raises_error(
+        self, name: str, url: str, error: Exception
+    ):
+        token = "TokenRandomCode123"
+        sample = ClickUpAPI(token)
+        with self.assertRaises(error):
+            sample.api_url = url
+
+    def test_api_url_setter_method_endswith_slash(self):
+        token = "TokenRandomCode123"
+        url = "https://clickup.com/api"
+        sample = ClickUpAPI(token, url)
+        self.assertTrue(str(sample.api_url).endswith("/"))
+
+    def test_header_method_sets_correct_token(self):
+        token = "TokenRandomCode123"
+        sample = ClickUpAPI(token)
+        self.assertEqual(sample.__dict__["_token"], token)
+        self.assertEqual(sample.header()["Authorization"], token)
+        header_token = "ABCD1234"
+        self.assertEqual(
+            sample.header(token=header_token)["Authorization"], header_token
+        )
+        self.assertEqual(sample.__dict__["_token"], token)
+
+    def test_header_method_sets_correct_content_type(self):
+        token = "TokenRandomCode123"
+        sample = ClickUpAPI(token)
+        build_in_content_type = sample.header()["Content-Type"]
+        new_content_type = "text/html"
+        self.assertEqual(
+            sample.header(content_type=new_content_type)["Content-Type"],
+            new_content_type,
+        )
+        self.assertNotEqual(
+            sample.header(content_type=new_content_type)["Content-Type"],
+            build_in_content_type,
+        )
+
+    @parameterized.expand(
+        [
+            ("adding new status", "do rozważenia", "add", 1),
+            ("adding existing status", "nowe", "add", 0),
+            ("removing existing status", "nowe", "remove", -1),
+            ("removing non-existing status", "random123string", "remove", 0),
+        ]
+    )
+    def test_available_statuses_list_update_success(
+        self, name: str, new_status: str, action: str, change: int
+    ):
+        number_of_statuses = len(ClickUpAPI.available_statuses)
+        ClickUpAPI.change_available_status(new_status, action)
+        self.assertEqual(
+            len(ClickUpAPI.available_statuses), number_of_statuses + change
+        )
+        if action == "add":
+            self.assertIn(new_status, ClickUpAPI.available_statuses)
+        elif action == "remove":
+            self.assertNotIn(new_status, ClickUpAPI.available_statuses)
+
+    @parameterized.expand(
+        [
+            ("adding new status with incorrect action", "do rozważenia", "incorrect"),
+            ("removing existing status with incorrect action", "nowe", "incorrect"),
+        ]
+    )
+    def test_available_statuses_list_update_raises_error(
+        self, name: str, new_status: str, action: str
+    ):
+        with self.assertRaises(ValueError):
+            ClickUpAPI.change_available_status(new_status, action)
+
+    def test_check_positive_integer_static_method_success(self):
+        self.assertIsNone(ClickUpAPI.check_positive_integer(5))
+
+    @parameterized.expand(
+        [
+            ("negative integer", -3, ValueError),
+            ("float value", 2.33, TypeError),
+            ("string value", "3", TypeError),
+        ]
+    )
+    def test_check_positive_integer_static_method_raises_error(
+        self, name: str, value: Any, error: Exception
+    ):
+        with self.assertRaises(error):
+            ClickUpAPI.check_positive_integer(value)
+
+    def test_check_integer_list_static_method_success(self):
+        self.assertIsNone(ClickUpAPI.check_integer_list([3, 6, -9]))
+        self.assertIsNone(ClickUpAPI.check_integer_list([]))
+
+    @parameterized.expand(
+        [
+            ("tuple instead of a list", (1, 2, 3), TypeError),
+            ("string instead of a list", "1, 2, 3", TypeError),
+            ("list with float numbers", [1, 2, 3.33], TypeError),
+            ("list with string values", [1, 2, "3"], TypeError),
+        ]
+    )
+    def test_check_integer_list_static_method_raises_error(
+        self, name: str, value: Any, error: Exception
+    ):
+        with self.assertRaises(error):
+            ClickUpAPI.check_integer_list(value)
+
+    def check_boolean_static_method_success(self):
+        self.assertTrue(ClickUpAPI.check_boolean(True))
+        self.assertFalse(ClickUpAPI.check_boolean(False))
+
+    @parameterized.expand(
+        [
+            ("tuple instead of a boolean", (1, 2), TypeError),
+            ("string instead of a boolean", "1, 3", TypeError),
+            ("list instead of a boolean", [1, 2], TypeError),
+            ("integer instead of a boolean", 11, TypeError),
+            ("floating number instead of a boolean", 1.21, TypeError),
+        ]
+    )
+    def test_check_boolean_static_method_raises_error(
+        self, name: str, value: Any, error: Exception
+    ):
+        with self.assertRaises(error):
+            ClickUpAPI.check_boolean(value)
+
+    @parameterized.expand(
+        [
+            (
+                "test datetime.datetime format",
+                datetime.datetime(2024, 11, 22, 8, 55),
+                1732262100000.0,
+            ),
+            ("test list format", [2024, 10, 10], 1728511200000.0),
+            ("test tuple format", (2024, 7, 7, 7, 55), 1720331700000.0),
+        ]
+    )
+    def test_datetime_to_unix_time_in_milliseconds_static_method_success(
+        self, name: str, value: Any, expected: int | float
+    ):
+        self.assertEqual(
+            ClickUpAPI.datetime_to_unix_time_in_milliseconds(value), expected
+        )
+
+    @parameterized.expand(
+        [
+            ("incorrect list format", [10, 10, 2024], DateSequenceError),
+            ("incorrect tuple format", (7, 7, 2024), DateSequenceError),
+            ("incorrect data type", "2024, 11, 11", DateDataError),
+        ]
+    )
+    def test_datetime_to_unix_time_in_milliseconds_static_method_raises_error(
+        self, name: str, value: Any, error: Exception
+    ):
+        with self.assertRaises(error):
+            self.assertEqual(ClickUpAPI.datetime_to_unix_time_in_milliseconds(value))
+
+    @parameterized.expand(
+        [
+            ("empty list", False, [], []),
+            ("single element list with an integer", True, [1], [1, 1234]),
+            ("single element list with a string", False, ["3Def5"], ["3Def5", "Abc1"]),
+            ("multiple element list with integers", True, [1, -2, 3], [1, -2, 3]),
+            ("multiple element list with strings", False, ["3D", "xyz"], ["3D", "xyz"]),
+        ]
+    )
+    @patch("random.choices")
+    def test_check_and_adjust_list_length_static_method_success(
+        self,
+        name: str,
+        append_number: bool,
+        value: list,
+        expected: list,
+        mocked_choices,
+    ):
+        if append_number:
+            mocked_choices.return_value = ["1", "2", "3", "4"]
+        elif not append_number:
+            mocked_choices.return_value = ["A", "b", "c", "1"]
+        self.assertEqual(
+            ClickUpAPI.check_and_adjust_list_length(value, append_number), expected
+        )
+
+    @parameterized.expand(
+        [
+            ("tuple instead of a list", True, (1, 2), TypeError),
+            ("string instead of a list", False, "1, 3", TypeError),
+            ("integer instead of a list", True, 11, TypeError),
+            ("floating number instead of a list", True, 1.21, TypeError),
+        ]
+    )
+    def test_check_and_adjust_list_length_static_method_raises_error(
+        self, name: str, append_number: bool, value: list, error: Exception
+    ):
+        with self.assertRaises(error):
+            ClickUpAPI.check_and_adjust_list_length(value, append_number)
+
+
+if __name__ == "__main__":
+    unittest.main(verbosity=1)

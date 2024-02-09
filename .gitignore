@@ -25,9 +25,4 @@ __init__.py
 *clickup_TODO.md
 clickup_TODO.md
 
-clickup_api/*
-clickup_api_screenshots/*
-tests/*
-**/clickup_api
-**/clickup_api_screenshots
-**/tests
+

@@ -11,16 +11,16 @@ For official documentation see:
 
 Official documentation:
 https://help.clickup.com/hc/en-us/articles/13856392825367-Intro-to-the-Hierarchy
-![Clickup Hierarchy](clickup_api_manual_screenshots/hierarchy.png)
+![Clickup Hierarchy](clickup_api_screenshots/hierarchy.png)
 
 In practice:
-![Clickup Project Hierarchy](clickup_api_manual_screenshots/project_hierarchy.png)
+![Clickup Project Hierarchy](clickup_api_screenshots/project_hierarchy.png)
 
 ## Getting credentials
 ### Token
 
-![Get token - Step 1](clickup_api_manual_screenshots/token_step_1.png)
-![Get token - Step 2](clickup_api_manual_screenshots/token_step_2.png)
+![Get token - Step 1](clickup_api_screenshots/token_step_1.png)
+![Get token - Step 2](clickup_api_screenshots/token_step_2.png)
 
 https://clickup.com/api/developer-portal/authentication/
 
@@ -28,7 +28,7 @@ https://clickup.com/api/developer-portal/authentication/
 ## Using credentials
 ### Postman
 
-![Postman - token use](clickup_api_manual_screenshots/token_postman.png)
+![Postman - token use](clickup_api_screenshots/token_postman.png)
 
 ### ClickUpAPI Class
 

@@ -1,0 +1,33 @@
+
+# Environments
+.env
+.venv/*
+env/*
+venv/*
+ENV/*
+env.bak
+venv.bak
+.vscode/*
+**/clickup_venv
+
+# Python
+*/__pycache__/*
+__init__.py
+.Python
+*.pyc
+
+
+# Other
+**/OLD
+**/fixtures
+*.json
+*testowy.py
+*clickup_TODO.md
+clickup_TODO.md
+
+clickup_api/*
+clickup_api_screenshots/*
+tests/*
+**/clickup_api
+**/clickup_api_screenshots
+**/tests

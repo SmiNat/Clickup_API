@@ -233,7 +233,7 @@ class TestClickUpGETTasksRequests(unittest.TestCase):
 
         cls.instance = ClickUpGETMethods(cls.token)
 
-    def test_get_tasks_with_only_list_id_returns_200(self):
+    def test_get_tasks_with_required_list_id_returns_200(self):
         response = self.instance.get_tasks(self.list, as_json=False)
         self.assertEqual(response.status_code, 200)
 
@@ -434,7 +434,7 @@ class TestClickUpGETTaskRequests(unittest.TestCase):
 
         cls.instance = ClickUpGETMethods(cls.token)
 
-    def test_get_task_with_only_task_id_returns_200(self):
+    def test_get_task_with_required_task_id_returns_200(self):
         response = self.instance.get_task(self.task_with_subtasks, as_json=False)
         self.assertEqual(response.status_code, 200)
 
@@ -735,10 +735,11 @@ class TestClickUpGETTaskCommentsRequests(unittest.TestCase):
         cls.task = os.environ.get(
             "CLICKUP_TASK_ID_UCP_IN_SPRINT1_IN_SPRINT_FOLDER_IN_MQUBE"
         )
+        cls.comment = os.environ.get("CLICKUP_COMMENT_TASK_ID")
 
         cls.instance = ClickUpGETMethods(cls.token)
 
-    def test_get_task_comments_with_only_task_id_returns_200(self):
+    def test_get_task_comments_with_required_task_id_returns_200(self):
         response = self.instance.get_task_comments(
             task_id=self.task, as_json=False
         )
@@ -751,18 +752,16 @@ class TestClickUpGETTaskCommentsRequests(unittest.TestCase):
         )
         self.assertEqual(response.status_code, 401)
 
-    def test_get_task_comments_without_task_id_returns_401(self):
-        response = self.instance.get_task_comments(task_id=None, as_json=False)
-        self.assertEqual(response.status_code, 401)
-
-    def test_get_task_comments_with_invalid_task_id_returns_401(self):
-        """Invalid task_id value."""
-        response = self.instance.get_task_comments(task_id="invalid10", as_json=False)
-        self.assertEqual(response.status_code, 401)
-
-    def test_get_task_comments_with_invalid_task_id_returns_401(self):
-        """Invalid data type for task_id (integer instead of a string)."""
-        response = self.instance.get_task_comments(task_id=12345678, as_json=False)
+    @parameterized.expand(
+        [
+            ("no task_id", None),
+            ("invalid task_id value", "invalid10"),
+            ("i6 5wqnvalid data type for task_id (integer instead of a string).", 123456789)
+        ]
+    )
+    def test_get_task_comments_without_task_id_returns_401(
+        self, name: str, value: Any):
+        response = self.instance.get_task_comments(task_id=value, as_json=False)
         self.assertEqual(response.status_code, 401)
 
     def test_get_task_comments_returns_json_dict(self):
@@ -775,21 +774,20 @@ class TestClickUpGETTaskCommentsRequests(unittest.TestCase):
 
     def test_get_task_comments_with_custom_task_ids_returns_200(self):
         response = self.instance.get_task_comments(
-            self.task, custom_task_ids=True, as_json=False
+            task_id=self.task, custom_task_ids=True, as_json=False
         )
         self.assertEqual(response.status_code, 200)
 
     def test_get_task_comments_with_team_id_returns_200(self):
         response = self.instance.get_task_comments(
-            self.task, team_id=self.team, as_json=False
+            task_id=self.task, team_id=self.team, as_json=False
         )
         self.assertEqual(response.status_code, 200)
-
 
     def test_get_task_comments_with_incorrect_team_id_returns_401(self):
         # 401 if team_id is an invalid number
         response = self.instance.get_task_comments(
-            self.task, team_id=123456789, as_json=False
+            task_id=self.task, team_id=123456789, as_json=False
         )
         self.assertEqual(response.status_code, 401)
 
@@ -802,7 +800,7 @@ class TestClickUpGETTaskCommentsRequests(unittest.TestCase):
 
     def test_get_task_comments_with_start_id_returns_200(self):
         response = self.instance.get_task_comments(
-            self.task, start_id=self.team, as_json=False
+            self.task, start_id=self.comment, as_json=False
         )
         self.assertEqual(response.status_code, 200)
 
@@ -813,11 +811,232 @@ class TestClickUpGETTaskCommentsRequests(unittest.TestCase):
             ("start date as a tuple", (2023, 11, 20)),
         ]
     )
-    def test_get_task_comments_with_start_200(self, name: str, value: Any):
+    def test_get_task_comments_with_start_returns_200(self, name: str, value: Any):
         response = self.instance.get_task_comments(
             self.task, start=value, as_json=False
         )
         self.assertEqual(response.status_code, 200)
+
+
+class TestClickUpGETListCommentsRequests(unittest.TestCase):
+    """Tests for get_list_comments method of ClickUpGETMethods class."""
+
+    @classmethod
+    def setUpClass(cls):
+        cls.token = os.environ.get("CLICKUP_MY_TOKEN")
+        cls.user = os.environ.get("CLICKUP_USER_ID")
+        cls.team = os.environ.get("CLICKUP_TEAM_ID_AKADEMIA_MQS")
+
+        cls.list = os.environ.get("CLICKUP_LIST_ID_LIST_IN_FOLDER_TEST_IN_MQUBE")
+        cls.comment = os.environ.get("CLICKUP_COMMENT_LIST_ID")
+
+        cls.instance = ClickUpGETMethods(cls.token)
+
+    def test_get_list_comments_with_required_list_id_returns_200(self):
+        response = self.instance.get_list_comments(
+            list_id=self.list, as_json=False
+        )
+        self.assertEqual(response.status_code, 200)
+
+    def test_get_list_comments_invalid_token_returns_401(self):
+        invalid_token_instance = ClickUpGETMethods("TokenRandomCode123")
+        response = invalid_token_instance.get_list_comments(
+            list_id=self.list, as_json=False
+        )
+        self.assertEqual(response.status_code, 401)
+
+    def test_get_list_comments_with_invalid_list_id_returns_401(self):
+        response = self.instance.get_list_comments(list_id=123456789, as_json=False)
+        self.assertEqual(response.status_code, 401)
+
+    @parameterized.expand(
+        [
+            ("no task_id", None),
+            ("invalid task_id value", "invalid10"),
+        ]
+    )
+    def test_get_list_comments_incorrect_list_id_returns_400(
+        self, name: str, value: Any):
+        response = self.instance.get_list_comments(list_id=value, as_json=False)
+        self.assertEqual(response.status_code, 400)
+
+    def test_get_list_comments_returns_json_dict(self):
+        response = self.instance.get_list_comments(self.list, as_json=True)
+        self.assertIsInstance(response, dict)
+
+    def test_get_list_comments_returns_response_object(self):
+        response = self.instance.get_list_comments(self.list, as_json=False)
+        self.assertIsInstance(response, requests.models.Response)
+
+    def test_get_list_comments_with_start_id_returns_200(self):
+        response = self.instance.get_list_comments(
+            list_id=self.list, start_id=self.comment, as_json=False
+        )
+        self.assertEqual(response.status_code, 200)
+
+    @parameterized.expand(
+        [
+            ("start date as datetime.datetime", datetime.datetime(2023, 11, 20)),
+            ("start date as a list", [2023, 11, 20]),
+            ("start date as a tuple", (2023, 11, 20)),
+        ]
+    )
+    def test_get_list_comments_with_start_returns_200(self, name: str, value: Any):
+        response = self.instance.get_list_comments(
+            list_id=self.list, start=value, as_json=False
+        )
+        self.assertEqual(response.status_code, 200)
+
+'''
+class TestClickUpGETChatViewCommentsRequests(unittest.TestCase):
+    """Tests for get_chat_view_comments method of ClickUpGETMethods class."""
+
+    @classmethod
+    def setUpClass(cls):
+        cls.token = os.environ.get("CLICKUP_MY_TOKEN")
+        cls.user = os.environ.get("CLICKUP_USER_ID")
+        cls.team = os.environ.get("CLICKUP_TEAM_ID_AKADEMIA_MQS")
+
+        cls.view = None     # not available for verification
+        cls.comment = None  # not available for verification
+
+        cls.instance = ClickUpGETMethods(cls.token)
+
+    def test_get_chat_view_comments_with_required_view_id_returns_200(self):
+        response = self.instance.get_chat_view_comments(
+            view_id=self.view, as_json=False
+        )
+        self.assertEqual(response.status_code, 200)
+
+    def test_get_chat_view_comments_invalid_token_returns_401(self):
+        invalid_token_instance = ClickUpGETMethods("TokenRandomCode123")
+        response = invalid_token_instance.get_chat_view_comments(
+            view_id=self.view, as_json=False
+        )
+        self.assertEqual(response.status_code, 401)
+
+    def test_get_chat_view_comments_with_invalid_view_id_returns_401(self):
+        response = self.instance.get_chat_view_comments(view_id=123456789, as_json=False)
+        self.assertEqual(response.status_code, 401)
+
+    @parameterized.expand(
+        [
+            ("no task_id", None),
+            ("invalid task_id value", "invalid10"),
+        ]
+    )
+    def test_get_chat_view_comments_incorrect_view_id_returns_400(
+        self, name: str, value: Any):
+        response = self.instance.get_chat_view_comments(view_id=value, as_json=False)
+        self.assertEqual(response.status_code, 400)
+
+    def test_get_chat_view_comments_returns_json_dict(self):
+        response = self.instance.get_chat_view_comments(view_id=self.view, as_json=True)
+        self.assertIsInstance(response, dict)
+
+    def test_get_chat_view_comments_returns_response_object(self):
+        response = self.instance.get_chat_view_comments(view_id=self.view, as_json=False)
+        self.assertIsInstance(response, requests.models.Response)
+
+    def test_get_chat_view_comments_with_start_id_returns_200(self):
+        response = self.instance.get_chat_view_comments(
+            view_id=self.view, start_id=self.comment, as_json=False
+        )
+        self.assertEqual(response.status_code, 200)
+
+    @parameterized.expand(
+        [
+            ("start date as datetime.datetime", datetime.datetime(2023, 11, 20)),
+            ("start date as a list", [2023, 11, 20]),
+            ("start date as a tuple", (2023, 11, 20)),
+        ]
+    )
+    def test_get_chat_view_comments_with_start_returns_200(self, name: str, value: Any):
+        response = self.instance.get_chat_view_comments(
+            view_id=self.view, start=value, as_json=False
+        )
+        self.assertEqual(response.status_code, 200)
+'''
+
+
+class TestClickUpGETCustomTaskTypesRequests(unittest.TestCase):
+    """Tests for get_custom_task_types method of ClickUpGETMethods class."""
+
+    @classmethod
+    def setUpClass(cls):
+        cls.token = os.environ.get("CLICKUP_MY_TOKEN")
+        cls.instance = ClickUpGETMethods(cls.token)
+        cls.team = os.environ.get("CLICKUP_TEAM_ID_AKADEMIA_MQS")
+
+    def test_get_custom_task_types_with_required_team_id_returns_200(self):
+        response = self.instance.get_custom_task_types(team_id=self.team, as_json=False)
+        self.assertEqual(response.status_code, 200)
+
+    def test_get_custom_task_types_without_team_id_returns_500(self):
+        response = self.instance.get_custom_task_types(team_id=None, as_json=False)
+        self.assertEqual(response.status_code, 500)
+
+    def test_get_custom_task_types_with_invalid_team_id_returns_500(self):
+        response = self.instance.get_custom_task_types(team_id="invalid10", as_json=False)
+        self.assertEqual(response.status_code, 500)
+
+    def test_get_custom_task_types_with_invalid_team_id_returns_401(self):
+        response = self.instance.get_custom_task_types(team_id=123456789, as_json=False)
+        self.assertEqual(response.status_code, 401)
+
+    def test_get_custom_task_types_invalid_token_returns_401(self):
+        response = self.instance.get_custom_task_types(
+            team_id=self.team, as_json=False, token="TokenRandomCode123"
+        )
+        self.assertEqual(response.status_code, 401)
+
+    def test_get_custom_task_types_returns_json_dict(self):
+        response = self.instance.get_custom_task_types(team_id=self.team, as_json=True)
+        self.assertIsInstance(response, dict)
+
+    def test_get_custom_task_types_returns_response_object(self):
+        response = self.instance.get_custom_task_types(team_id=self.team, as_json=False)
+        self.assertIsInstance(response, requests.models.Response)
+
+
+class TestClickUpGETAccesibleCustomFieldsRequests(unittest.TestCase):
+    """Tests for get_accessible_custom_fields method of ClickUpGETMethods class."""
+
+    @classmethod
+    def setUpClass(cls):
+        cls.token = os.environ.get("CLICKUP_MY_TOKEN")
+        cls.instance = ClickUpGETMethods(cls.token)
+        cls.list = os.environ.get("CLICKUP_LIST_ID_LIST_IN_FOLDER_TEST_IN_MQUBE")
+
+    def test_get_accessible_custom_fields_with_required_list_id_returns_200(self):
+        response = self.instance.get_accessible_custom_fields(list_id=self.list, as_json=False)
+        self.assertEqual(response.status_code, 200)
+
+    def test_get_accessible_custom_fields_without_list_id_returns_400(self):
+        response = self.instance.get_accessible_custom_fields(list_id=None, as_json=False)
+        self.assertEqual(response.status_code, 400)
+
+    def test_get_accessible_custom_fields_with_invalid_list_id_returns_400(self):
+        response = self.instance.get_accessible_custom_fields(list_id="invalid10", as_json=False)
+        self.assertEqual(response.status_code, 400)
+
+    def test_get_accessible_custom_fields_with_invalid_list_id_returns_401(self):
+        response = self.instance.get_accessible_custom_fields(list_id=123456789, as_json=False)
+        self.assertEqual(response.status_code, 401)
+
+    def test_get_accessible_custom_fields_invalid_token_returns_401(self):
+        response = self.instance.get_accessible_custom_fields(
+            list_id=self.list, as_json=False, token="TokenRandomCode123"
+        )
+        self.assertEqual(response.status_code, 401)
+
+    def test_get_accessible_custom_fields_returns_json_dict(self):
+        response = self.instance.get_accessible_custom_fields(list_id=self.list, as_json=True)
+        self.assertIsInstance(response, dict)
+
+    def test_get_accessible_custom_fields_returns_response_object(self):
+        response = self.instance.get_accessible_custom_fields(list_id=self.list, as_json=False)
+        self.assertIsInstance(response, requests.models.Response)
 
 
 

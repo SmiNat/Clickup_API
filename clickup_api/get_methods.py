@@ -6,10 +6,10 @@ import requests
 from dotenv import load_dotenv
 from fastapi import FastAPI, Query
 
-from .exceptions import DateDataError, DateSequenceError, DateTypeError
+from .exceptions import DateValueError, DateSequenceError, DateTypeError
 from .handlers import (check_and_adjust_list_length,
                        date_as_string_to_unix_time_in_milliseconds,
-                       split_array)
+                       split_string_array, split_int_array)
 
 load_dotenv()
 
@@ -17,7 +17,8 @@ load_dotenv()
 
 app = FastAPI()
 
-TOKEN = os.environ.get("CLICKUP_MY_TOKEN")
+# TOKEN = os.environ.get("CLICKUP_MY_TOKEN")
+TOKEN = os.environ.get("CLICKUP_ADDITIONAL_TOKEN")
 URL = os.environ.get("CLICKUP_URL")
 HEADER = {"Authorization": TOKEN, "Content-Type": "application/json"}
 
@@ -150,7 +151,12 @@ async def get_tasks(
         ),
     ] = None,
     # custom_fields: list[str] | None = None,  # NotImplemented
-    # custom_items: list[int] | None = None,
+    custom_items: Annotated[
+        list[str] | None,
+        Query(description="Filter by custom task types. Use comma to separate items.\
+            Including 0 returns tasks. Including 1 returns Milestones. Including any \
+                other number returns the custom task type as defined in your Workspace."),
+    ] = None,
 ):
     url = f"{URL}/list/{str(list_id)}/task"
 
@@ -163,10 +169,10 @@ async def get_tasks(
         "order_by": order_by,
         "reverse": "true" if reverse else "false",
         "subtasks": "true" if subtasks else None,
-        "statuses": split_array(statuses),
+        "statuses": split_string_array(statuses),
         "include_closed": "true" if include_closed else "false",
-        "assignees": split_array(assignees),
-        "tags": split_array(tags),
+        "assignees": split_string_array(assignees),
+        "tags": split_string_array(tags),
         "due_date_gt": date_as_string_to_unix_time_in_milliseconds(due_date_gt),
         "due_date_lt": date_as_string_to_unix_time_in_milliseconds(due_date_lt),
         "date_created_gt": date_as_string_to_unix_time_in_milliseconds(date_created_gt),
@@ -176,7 +182,94 @@ async def get_tasks(
         "date_done_gt": date_as_string_to_unix_time_in_milliseconds(date_done_gt),
         "date_done_lt": date_as_string_to_unix_time_in_milliseconds(date_done_lt),
         # "custom_fields": custom_fields,
-        # "custom_items": custom_items,
+        "custom_items": split_int_array(custom_items),
+    }
+
+    response = requests.get(url, headers=HEADER, params=query)
+    return response.json()
+
+
+@app.get("/task/{task_id}")
+async def get_task(
+    task_id: str,
+    custom_task_ids: bool = False,
+    team_id: int | None = None,
+    include_subtasks: bool = False,
+    include_markdown_description: bool = False,
+):
+    url = f"{URL}/task/{str(task_id)}"
+
+    custom_task_ids = "true" if team_id or custom_task_ids else "false"
+
+    query = {
+        "custom_task_ids": custom_task_ids,
+        "team_id": team_id,
+        "include_subtasks": "true" if include_subtasks else "false",
+        "include_markdown_description": "true" if include_markdown_description else "false",
+    }
+
+    response = requests.get(url, headers=HEADER, params=query)
+    return response.json()
+
+
+@app.get("/user/{team_id}/{user_id}")
+async def get_user(team_id: int, user_id: int):
+    url = f"{URL}/team/{str(team_id)}/user/{str(user_id)}"
+    response = requests.get(url, headers=HEADER)
+    return response.json()
+
+
+@app.get("/team/{team_id}/time_entries")
+async def get_time_entries(
+    team_id: int,
+    start_date: Annotated[
+        str | None,
+        Query(
+            description="Date in sequence: Year, Month, Day. \
+            Use integers for date parameters. Use comma to separate parameters. \
+                Example: 2024, 5, 15"
+        ),
+    ] = None,
+    end_date: Annotated[
+        str | None,
+        Query(
+            description="Date in sequence: Year, Month, Day. \
+            Use integers for date parameters. Use comma to separate parameters. \
+                Example: 2024, 5, 15"
+        ),
+    ] = None,
+    assignee: Annotated[
+        int | str | None,
+        Query(description="Filter by user_id. For multiple assignees, separate user_id using commas.")
+        ] = None,
+    include_task_tags: bool = False,
+    include_location_names: bool = False,
+    space_id: int | None = None,
+    folder_id: int | None = None,
+    list_id: int | None = None,
+    task_id: str | None = None,
+    custom_task_ids: bool = False,
+    query_team_id: Annotated[
+        int | None,
+        Query(description="Only used when the custom_task_ids parameter is set to true.")
+        ] = None,
+):
+    url = f"{URL}/team/{str(team_id)}/time_entries"
+
+    custom_task_ids = "true" if query_team_id or custom_task_ids else "false"
+
+    query = {
+        "start_date": date_as_string_to_unix_time_in_milliseconds(start_date),
+        "end_date": date_as_string_to_unix_time_in_milliseconds(end_date),
+        "assignee": assignee,
+        "include_task_tags": "true" if include_task_tags else "false",
+        "include_location_names": "true" if include_location_names else "false",
+        "space_id": space_id,
+        "folder_id": folder_id,
+        "list_id": list_id,
+        "task_id": task_id,
+        "custom_task_ids": custom_task_ids,
+        "team_id": query_team_id,
     }
 
     response = requests.get(url, headers=HEADER, params=query)

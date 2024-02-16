@@ -3,7 +3,7 @@ import random
 import string
 from urllib.parse import urlparse
 
-from .exceptions import DateDataError, DateSequenceError, DateTypeError
+from .exceptions import DateValueError, DateSequenceError, DateTypeError
 
 
 def is_url(url: str) -> bool:
@@ -63,7 +63,7 @@ def datetime_to_unix_time_in_milliseconds(
             except TypeError as error:
                 raise DateTypeError(error)
         else:
-            raise DateDataError()
+            raise DateValueError()
     return date
 
 
@@ -106,7 +106,7 @@ def check_and_adjust_list_length(data: list, append_number: bool = False) -> lis
     return data
 
 
-def split_array(data: list[str]) -> list:
+def split_string_array(data: list[str]) -> list:
     """Converts one-element list to a list of strings."""
     if data:
         if not isinstance(data, list):
@@ -121,3 +121,27 @@ def split_array(data: list[str]) -> list:
             split_data.append(random_value)
         return split_data
     return data
+
+
+def split_int_array(data: list[str]) -> list:
+    """Converts one-element list with string to a list of integers."""
+    if data:
+        print(">>>", data)
+        if not isinstance(data, list):
+            raise TypeError("Invalid data type. Only 'list' with a single string element containing numbers is allowed.")
+        if len(data) != 1:
+            raise ValueError("The list must contain a single string element with numbers separated by commas.")
+        if isinstance(data[0], str):
+            try:
+                data = [int(str(_).strip()) for _ in data[0].split(",")]
+            except ValueError:
+                raise ValueError("The list must contain a single string with numbers separated by commas.")
+        if len(data) == 1 and isinstance(data[0], int):
+            random_value = int("".join(
+                random.choices(string.digits, k=8)
+            ))
+            data.append(random_value)
+        return data
+    return data
+
+

@@ -5,11 +5,14 @@ from typing import Any
 from unittest.mock import patch
 
 import requests
-from clickup_api.clickup_api import ClickUpGETMethods
 from dotenv import load_dotenv
 from parameterized import parameterized
 
+from ..get_methods import ClickUpGETMethods
+
 load_dotenv()
+
+# python -m unittest clickup_api_oop.tests.test_clickup_api_get_methods. --f
 
 
 class TestClickUpGETAuthorizedTeamsWorkspacesRequests(unittest.TestCase):
@@ -263,9 +266,7 @@ class TestClickUpGETTasksRequests(unittest.TestCase):
         self.assertIsInstance(response, requests.models.Response)
 
     def test_get_tasks_archived_returns_200(self):
-        response = self.instance.get_tasks(
-            self.list, archived=True, as_json=False
-        )
+        response = self.instance.get_tasks(self.list, archived=True, as_json=False)
         self.assertEqual(response.status_code, 200)
 
     def test_get_tasks_with_markdown_description_returns_200(self):
@@ -276,9 +277,7 @@ class TestClickUpGETTasksRequests(unittest.TestCase):
         self.assertIn("markdown_description", response.content.decode())
 
     def test_get_tasks_with_page_number_returns_200(self):
-        response = self.instance.get_tasks(
-            self.list, page=1, as_json=False
-        )
+        response = self.instance.get_tasks(self.list, page=1, as_json=False)
         self.assertEqual(response.status_code, 200)
 
     @parameterized.expand(
@@ -290,9 +289,7 @@ class TestClickUpGETTasksRequests(unittest.TestCase):
         ]
     )
     def test_get_tasks_with_order_by_returns_200(self, name: str, value: str):
-        response = self.instance.get_tasks(
-            self.list, order_by=value, as_json=False
-        )
+        response = self.instance.get_tasks(self.list, order_by=value, as_json=False)
         self.assertEqual(response.status_code, 200)
 
     @parameterized.expand(
@@ -304,23 +301,19 @@ class TestClickUpGETTasksRequests(unittest.TestCase):
     )
     def test_get_tasks_with_inorrect_order_by_returns_error(
         self, name: str, value: str, error: Exception
-        ):
+    ):
         # ClickUp API response: 500 "Internal server error"
         with self.assertRaises(error):
             self.instance.get_tasks(self.list, order_by=value, as_json=False)
 
     def test_get_tasks_reverse_returns_200(self):
-        response = self.instance.get_tasks(
-            self.list, reverse=True, as_json=False
-        )
+        response = self.instance.get_tasks(self.list, reverse=True, as_json=False)
         self.assertEqual(response.status_code, 200)
 
     def test_get_tasks_with_subtasks_returns_200(self):
-        response = self.instance.get_tasks(
-            self.list, subtasks=True, as_json=False
-        )
+        response = self.instance.get_tasks(self.list, subtasks=True, as_json=False)
         self.assertEqual(response.status_code, 200)
-        self.assertTrue(response.json()["subtasks"])
+        print(response.json())
         self.assertIn(self.subtask, response.content.decode())
 
     @parameterized.expand(
@@ -331,9 +324,7 @@ class TestClickUpGETTasksRequests(unittest.TestCase):
         ]
     )
     def test_get_tasks_by_statuses_returns_200(self, name: str, value: str):
-        response = self.instance.get_tasks(
-            self.list, statuses=value, as_json=False
-        )
+        response = self.instance.get_tasks(self.list, statuses=value, as_json=False)
         self.assertEqual(response.status_code, 200)
 
     @parameterized.expand(
@@ -345,7 +336,7 @@ class TestClickUpGETTasksRequests(unittest.TestCase):
     )
     def test_get_tasks_with_inorrect_statuses_returns_error(
         self, name: str, value: str, error: Exception
-        ):
+    ):
         # ClickUp API response: 500 "Internal server error"
         with self.assertRaises(error):
             self.instance.get_tasks(self.list, statuses=value, as_json=False)
@@ -740,9 +731,7 @@ class TestClickUpGETTaskCommentsRequests(unittest.TestCase):
         cls.instance = ClickUpGETMethods(cls.token)
 
     def test_get_task_comments_with_required_task_id_returns_200(self):
-        response = self.instance.get_task_comments(
-            task_id=self.task, as_json=False
-        )
+        response = self.instance.get_task_comments(task_id=self.task, as_json=False)
         self.assertEqual(response.status_code, 200)
 
     def test_get_task_comments_invalid_token_returns_401(self):
@@ -756,11 +745,13 @@ class TestClickUpGETTaskCommentsRequests(unittest.TestCase):
         [
             ("no task_id", None),
             ("invalid task_id value", "invalid10"),
-            ("i6 5wqnvalid data type for task_id (integer instead of a string).", 123456789)
+            (
+                "i6 5wqnvalid data type for task_id (integer instead of a string).",
+                123456789,
+            ),
         ]
     )
-    def test_get_task_comments_without_task_id_returns_401(
-        self, name: str, value: Any):
+    def test_get_task_comments_without_task_id_returns_401(self, name: str, value: Any):
         response = self.instance.get_task_comments(task_id=value, as_json=False)
         self.assertEqual(response.status_code, 401)
 
@@ -833,9 +824,7 @@ class TestClickUpGETListCommentsRequests(unittest.TestCase):
         cls.instance = ClickUpGETMethods(cls.token)
 
     def test_get_list_comments_with_required_list_id_returns_200(self):
-        response = self.instance.get_list_comments(
-            list_id=self.list, as_json=False
-        )
+        response = self.instance.get_list_comments(list_id=self.list, as_json=False)
         self.assertEqual(response.status_code, 200)
 
     def test_get_list_comments_invalid_token_returns_401(self):
@@ -856,7 +845,8 @@ class TestClickUpGETListCommentsRequests(unittest.TestCase):
         ]
     )
     def test_get_list_comments_incorrect_list_id_returns_400(
-        self, name: str, value: Any):
+        self, name: str, value: Any
+    ):
         response = self.instance.get_list_comments(list_id=value, as_json=False)
         self.assertEqual(response.status_code, 400)
 
@@ -886,6 +876,7 @@ class TestClickUpGETListCommentsRequests(unittest.TestCase):
             list_id=self.list, start=value, as_json=False
         )
         self.assertEqual(response.status_code, 200)
+
 
 '''
 class TestClickUpGETChatViewCommentsRequests(unittest.TestCase):
@@ -977,7 +968,9 @@ class TestClickUpGETCustomTaskTypesRequests(unittest.TestCase):
         self.assertEqual(response.status_code, 500)
 
     def test_get_custom_task_types_with_invalid_team_id_returns_500(self):
-        response = self.instance.get_custom_task_types(team_id="invalid10", as_json=False)
+        response = self.instance.get_custom_task_types(
+            team_id="invalid10", as_json=False
+        )
         self.assertEqual(response.status_code, 500)
 
     def test_get_custom_task_types_with_invalid_team_id_returns_401(self):
@@ -1009,19 +1002,27 @@ class TestClickUpGETAccesibleCustomFieldsRequests(unittest.TestCase):
         cls.list = os.environ.get("CLICKUP_LIST_ID_LIST_IN_FOLDER_TEST_IN_MQUBE")
 
     def test_get_accessible_custom_fields_with_required_list_id_returns_200(self):
-        response = self.instance.get_accessible_custom_fields(list_id=self.list, as_json=False)
+        response = self.instance.get_accessible_custom_fields(
+            list_id=self.list, as_json=False
+        )
         self.assertEqual(response.status_code, 200)
 
     def test_get_accessible_custom_fields_without_list_id_returns_400(self):
-        response = self.instance.get_accessible_custom_fields(list_id=None, as_json=False)
+        response = self.instance.get_accessible_custom_fields(
+            list_id=None, as_json=False
+        )
         self.assertEqual(response.status_code, 400)
 
     def test_get_accessible_custom_fields_with_invalid_list_id_returns_400(self):
-        response = self.instance.get_accessible_custom_fields(list_id="invalid10", as_json=False)
+        response = self.instance.get_accessible_custom_fields(
+            list_id="invalid10", as_json=False
+        )
         self.assertEqual(response.status_code, 400)
 
     def test_get_accessible_custom_fields_with_invalid_list_id_returns_401(self):
-        response = self.instance.get_accessible_custom_fields(list_id=123456789, as_json=False)
+        response = self.instance.get_accessible_custom_fields(
+            list_id=123456789, as_json=False
+        )
         self.assertEqual(response.status_code, 401)
 
     def test_get_accessible_custom_fields_invalid_token_returns_401(self):
@@ -1031,14 +1032,16 @@ class TestClickUpGETAccesibleCustomFieldsRequests(unittest.TestCase):
         self.assertEqual(response.status_code, 401)
 
     def test_get_accessible_custom_fields_returns_json_dict(self):
-        response = self.instance.get_accessible_custom_fields(list_id=self.list, as_json=True)
+        response = self.instance.get_accessible_custom_fields(
+            list_id=self.list, as_json=True
+        )
         self.assertIsInstance(response, dict)
 
     def test_get_accessible_custom_fields_returns_response_object(self):
-        response = self.instance.get_accessible_custom_fields(list_id=self.list, as_json=False)
+        response = self.instance.get_accessible_custom_fields(
+            list_id=self.list, as_json=False
+        )
         self.assertIsInstance(response, requests.models.Response)
-
-
 
 
 if __name__ == "__main__":

@@ -5,12 +5,9 @@ import datetime
 import requests
 from dotenv import load_dotenv
 
-from clickup_api.handlers import (
-    check_and_adjust_list_length,
-    check_boolean,
-    check_integer_list,
-    datetime_to_unix_time_in_milliseconds,
-)
+from clickup_api.handlers import (check_and_adjust_list_length, check_boolean,
+                                  check_integer_list,
+                                  datetime_to_unix_time_in_milliseconds)
 
 from .main import ClickUpAPI
 
@@ -520,7 +517,7 @@ class ClickUpGETMethods(ClickUpAPI):
                 Team ID (Workspace).
             start_date (datetime.datetime | list[int] | tuple[int] | None, optional):
                 Sets beginning of a time search. If None, equals to the beginning of
-                a current month. Use datetime.datetime() to set a start_date.
+                the current month. Use datetime.datetime() to set a start_date.
                 Alternatively type start_date as a list or a tuple of integer values
                 in the following order: (year, month, day[, hour, minute, second]).
                 Defaults to None.

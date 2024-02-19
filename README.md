@@ -131,8 +131,8 @@ and the basic url address set in main.py file.
     SHARD_001       500     Invalid input syntax for integer / Incorrect data type
                             (usually string input instead of an integer) / Invalid ID.
     TEAM_110        403     Team must be on enterprise plan.
-    TIMEENTRYM_006  Team not authorized - either user does not have required permissions
-                    or 'team_id' (workspace) does not exist (invalid ID).
+    TIMEENTRYM_006  401     Team not authorized - either user does not have required permissions
+                            or 'team_id' (workspace) does not exist (invalid ID).
     TIMEENTRY_007   400     Invalid 'assignee' option. Check user_id.
     TIMEENTRY_059   You have no access - use token with higher access permissions.
     TIMEENTRY_062   400     Hierarchy ID should be integer - check space / list / folder id number.

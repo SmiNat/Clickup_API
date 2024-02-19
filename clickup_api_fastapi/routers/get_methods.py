@@ -1,19 +1,19 @@
+import datetime
 from typing import Annotated
 
 import requests
 from fastapi import APIRouter, Query
 
-from clickup_api.handlers import (
-    date_as_string_to_unix_time_in_milliseconds,
-    split_int_array,
-    split_string_array,
-)
-from clickup_api_fastapi.main import URL, HEADER
-
+from clickup_api.handlers import (date_as_string_to_unix_time_in_milliseconds,
+                                  split_int_array, split_string_array)
+from clickup_api_fastapi.enums import Static
 
 # uvicorn clickup_api_fastapi.main:app --reload
 
-router = APIRouter(tags=["clickup", "get methods"])
+router = APIRouter(tags=["get methods"])
+
+HEADER = {"Authorization": Static.TOKEN.value, "Content-Type": "application/json"}
+URL = Static.URL.value
 
 
 @router.get("/authorized_teams_workspaces")
@@ -224,7 +224,7 @@ async def get_time_entries(
         Query(
             description="Date in sequence: Year, Month, Day. \
             Use integers for date parameters. Use comma to separate parameters. \
-                Example: 2024, 5, 15"
+                Example: 2024, 5, 15. If None, equals to the beginning of the current month."
         ),
     ] = None,
     end_date: Annotated[
@@ -258,6 +258,13 @@ async def get_time_entries(
     url = f"{URL}/team/{str(team_id)}/time_entries"
 
     custom_task_ids = "true" if query_team_id or custom_task_ids else "false"
+    if not start_date:
+        start_date = (
+            str(datetime.date.today().year)
+            + ","
+            + str(datetime.date.today().month)
+            + ",1"
+        )
 
     query = {
         "start_date": date_as_string_to_unix_time_in_milliseconds(start_date),

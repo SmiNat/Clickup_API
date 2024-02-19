@@ -7,18 +7,12 @@ from dotenv import load_dotenv
 from parameterized import parameterized
 
 from clickup_api.exceptions import DateSequenceError, DateValueError
-from clickup_api.handlers import (
-    check_and_adjust_list_length,
-    check_boolean,
-    check_integer_list,
-    check_positive_integer,
-    check_token,
-    date_as_string_to_unix_time_in_milliseconds,
-    datetime_to_unix_time_in_milliseconds,
-    is_url,
-    split_int_array,
-    split_string_array,
-)
+from clickup_api.handlers import (check_and_adjust_list_length, check_boolean,
+                                  check_integer_list, check_positive_integer,
+                                  check_token,
+                                  date_as_string_to_unix_time_in_milliseconds,
+                                  datetime_to_unix_time_in_milliseconds,
+                                  is_url, split_int_array, split_string_array)
 
 load_dotenv()
 
@@ -195,12 +189,24 @@ class TestHandlers(unittest.TestCase):
 
     @parameterized.expand(
         [
-            ("single string element in a list, string with no commas", True, ["abcd"],
-             ["abcd", "xyz123"]),
-            ("single string element in a list - string with commas", False,
-             ["abcd, efgh, 1234"], ["abcd", "efgh", "1234"]),
-            ("single string element in a list, string with no commas", True, [""],
-             ["", "xyz123"]),
+            (
+                "single string element in a list, string with no commas",
+                True,
+                ["abcd"],
+                ["abcd", "xyz123"],
+            ),
+            (
+                "single string element in a list - string with commas",
+                False,
+                ["abcd, efgh, 1234"],
+                ["abcd", "efgh", "1234"],
+            ),
+            (
+                "single string element in a list, string with no commas",
+                True,
+                [""],
+                ["", "xyz123"],
+            ),
         ]
     )
     @patch("random.choices")
@@ -210,7 +216,7 @@ class TestHandlers(unittest.TestCase):
         append_random: bool,
         value: list,
         expected: list,
-        mocked_choices: list
+        mocked_choices: list,
     ):
         if append_random:
             mocked_choices.return_value = ["x", "y", "z", "1", "2", "3"]
@@ -218,8 +224,18 @@ class TestHandlers(unittest.TestCase):
 
     @parameterized.expand(
         [
-            ("list with other than string values - boolean", True, [False], AttributeError),
-            ("list with other than string values - integer", True, [123], AttributeError),
+            (
+                "list with other than string values - boolean",
+                True,
+                [False],
+                AttributeError,
+            ),
+            (
+                "list with other than string values - integer",
+                True,
+                [123],
+                AttributeError,
+            ),
         ]
     )
     @patch("random.choices")
@@ -229,7 +245,7 @@ class TestHandlers(unittest.TestCase):
         append_random: bool,
         value: list,
         error: Exception,
-        mocked_choices: list
+        mocked_choices: list,
     ):
         if append_random:
             mocked_choices.return_value = ["x", "y", "z", "1", "2", "3"]
@@ -238,11 +254,19 @@ class TestHandlers(unittest.TestCase):
 
     @parameterized.expand(
         [
-            ("single string element in a list, string with no commas", True, ["123"],
-             [123, 456]),
-            ("single string element in a list - string with commas", False,
-             ["123, 333, 987"], [123, 333, 987]),
-            ("list with other than string values - integer", True, [123], [123,456]),
+            (
+                "single string element in a list, string with no commas",
+                True,
+                ["123"],
+                [123, 456],
+            ),
+            (
+                "single string element in a list - string with commas",
+                False,
+                ["123, 333, 987"],
+                [123, 333, 987],
+            ),
+            ("list with other than string values - integer", True, [123], [123, 456]),
             ("empty list", False, [], []),
         ]
     )
@@ -253,7 +277,7 @@ class TestHandlers(unittest.TestCase):
         append_random: bool,
         value: list,
         expected: list,
-        mocked_choices: list
+        mocked_choices: list,
     ):
         if append_random:
             mocked_choices.return_value = ["4", "5", "6"]
@@ -261,8 +285,12 @@ class TestHandlers(unittest.TestCase):
 
     @parameterized.expand(
         [
-            ("single string element in a list, values other than numbers", True,
-             ["abcd"], ValueError),
+            (
+                "single string element in a list, values other than numbers",
+                True,
+                ["abcd"],
+                ValueError,
+            ),
             ("multiple string element in a list", True, ["123", "555"], ValueError),
         ]
     )
@@ -273,12 +301,13 @@ class TestHandlers(unittest.TestCase):
         append_random: bool,
         value: list,
         error: Exception,
-        mocked_choices: list
+        mocked_choices: list,
     ):
         if append_random:
             mocked_choices.return_value = ["4", "5", "6"]
         with self.assertRaises(error):
             split_int_array(value)
+
 
 if __name__ == "__main__":
     unittest.main(verbosity=1)

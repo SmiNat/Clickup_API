@@ -69,7 +69,8 @@ class ClickUpAdditionalMethods(ClickUpGETMethods):
             response = self.get_time_entries(team_id=team, as_json=True, **kwargs)
             if not "data" in response.keys():
                 raise ReferenceError(
-                    f"Request to access teams failed. ClickUp API error message: {response}."
+                    f"Request to access teams failed - team not authorized. "
+                    "ClickUp API final error message: {response}."
                 )
             else:
                 responses.append(response)
@@ -203,7 +204,7 @@ class ClickUpAdditionalMethods(ClickUpGETMethods):
                 Defaults to None.
             team_id (list[int] | tuple[int] | None, optional):
                 Team ID (Workspace). Note: one user may be assigned to more than one team.
-                For receiving tasks from multiple workspaces, type workspace IDs as
+                To receive tasks from multiple workspaces, type workspace IDs as
                 a list or a tuple. If None, includes all teams available for token owner.
                 Defaults to None.
             token (str | None, optional):
@@ -223,7 +224,7 @@ class ClickUpAdditionalMethods(ClickUpGETMethods):
         for team in workspaces_data["teams"]:
             is_user_in_workspace = False
             for user in team["members"]:
-                if username == user["user"]["username"]:
+                if username.casefold() == user["user"]["username"].casefold():
                     assignee = user["user"][
                         "id"
                     ]  # getting user_id from username from workspace
@@ -246,12 +247,11 @@ class ClickUpAdditionalMethods(ClickUpGETMethods):
             token=token,
         )
 
-        task_ids = (
-            []
-        )  # all unique tasks by ids (one task can appear many times depending on the number of times tracked)
-        task_entry_ids = (
-            []
-        )  # all time tracked ids for all tasks (each time track has its own id)
+        # all unique tasks by ids (one task can appear many times depending on the number of times tracked):
+        task_ids = []
+        # all time tracked ids for all tasks (each time track has its own id):
+        task_entry_ids = []
+
         user_tasks = {
             "username": username,
             "user_id": assignee,

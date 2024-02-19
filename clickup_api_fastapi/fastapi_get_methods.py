@@ -1,4 +1,3 @@
-import datetime
 import os
 from typing import Annotated
 
@@ -6,14 +5,15 @@ import requests
 from dotenv import load_dotenv
 from fastapi import FastAPI, Query
 
-from .exceptions import DateValueError, DateSequenceError, DateTypeError
-from .handlers import (check_and_adjust_list_length,
-                       date_as_string_to_unix_time_in_milliseconds,
-                       split_string_array, split_int_array)
+from clickup_api.handlers import (
+    date_as_string_to_unix_time_in_milliseconds,
+    split_int_array,
+    split_string_array,
+)
 
 load_dotenv()
 
-# uvicorn clickup_api.get_methods:app --reload
+# uvicorn clickup_api_fastapi.fastapi_get_methods:app --reload
 
 app = FastAPI()
 
@@ -153,9 +153,11 @@ async def get_tasks(
     # custom_fields: list[str] | None = None,  # NotImplemented
     custom_items: Annotated[
         list[str] | None,
-        Query(description="Filter by custom task types. Use comma to separate items.\
+        Query(
+            description="Filter by custom task types. Use comma to separate items.\
             Including 0 returns tasks. Including 1 returns Milestones. Including any \
-                other number returns the custom task type as defined in your Workspace."),
+                other number returns the custom task type as defined in your Workspace."
+        ),
     ] = None,
 ):
     url = f"{URL}/list/{str(list_id)}/task"
@@ -205,7 +207,9 @@ async def get_task(
         "custom_task_ids": custom_task_ids,
         "team_id": team_id,
         "include_subtasks": "true" if include_subtasks else "false",
-        "include_markdown_description": "true" if include_markdown_description else "false",
+        "include_markdown_description": (
+            "true" if include_markdown_description else "false"
+        ),
     }
 
     response = requests.get(url, headers=HEADER, params=query)
@@ -240,8 +244,10 @@ async def get_time_entries(
     ] = None,
     assignee: Annotated[
         int | str | None,
-        Query(description="Filter by user_id. For multiple assignees, separate user_id using commas.")
-        ] = None,
+        Query(
+            description="Filter by user_id. For multiple assignees, separate user_id using commas."
+        ),
+    ] = None,
     include_task_tags: bool = False,
     include_location_names: bool = False,
     space_id: int | None = None,
@@ -251,8 +257,10 @@ async def get_time_entries(
     custom_task_ids: bool = False,
     query_team_id: Annotated[
         int | None,
-        Query(description="Only used when the custom_task_ids parameter is set to true.")
-        ] = None,
+        Query(
+            description="Only used when the custom_task_ids parameter is set to true."
+        ),
+    ] = None,
 ):
     url = f"{URL}/team/{str(team_id)}/time_entries"
 

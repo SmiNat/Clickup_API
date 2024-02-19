@@ -1,13 +1,8 @@
-import datetime
-import os
 import unittest
-from typing import Any
-from unittest.mock import patch
 
-import requests
-from clickup_api.clickup_api import ClickUpAdditionalMethods
 from dotenv import load_dotenv
-from parameterized import parameterized
+
+from clickup_api_oop.additional_methods import ClickUpAdditionalMethods
 
 load_dotenv()
 

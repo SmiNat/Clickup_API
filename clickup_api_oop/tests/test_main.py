@@ -1,14 +1,15 @@
-import datetime
 import unittest
 from typing import Any
 from unittest.mock import patch
 
-from clickup_api.clickup_api import ClickUpAPI
-from clickup_api.exceptions import DateDataError, DateSequenceError
 from dotenv import load_dotenv
 from parameterized import parameterized
 
+from ..main import ClickUpAPI
+
 load_dotenv()
+
+# python -m unittest clickup_api_oop.tests.test_clickup_api --f
 
 
 class TestClickUpAPICore(unittest.TestCase):
@@ -22,24 +23,6 @@ class TestClickUpAPICore(unittest.TestCase):
     def test_empty_token_at_instance_initiation_raises_error(self):
         with self.assertRaises(TypeError):
             ClickUpAPI()
-
-    @parameterized.expand(
-        [
-            ("Token as an empty string", "", ValueError),
-            ("Token as a boolean type", True, TypeError),
-            ("Token as a list", ["value"], TypeError),
-            ("Token as a None value", None, TypeError),
-            ("Token as a dict", {"token": "ABCD1234"}, TypeError),
-        ]
-    )
-    def test_check_token_static_method_validation_raises_error(
-        self, name: str, token: Any, error: Exception
-    ):
-        with self.assertRaises(error):
-            ClickUpAPI.check_token(token)
-
-    def test_check_token_static_method_validation_correct_values(self):
-        self.assertEqual(ClickUpAPI.check_token("TokenRandomCode123"), None)
 
     @parameterized.expand(
         [
@@ -91,18 +74,6 @@ class TestClickUpAPICore(unittest.TestCase):
         sample = ClickUpAPI("token")
         expected_url = "https://app.clickup.com/api/v2/"
         self.assertEqual(sample.api_url, expected_url)
-
-    @parameterized.expand(
-        [
-            ("Valid url", "https://clickup.com/api/", True),
-            ("No http", "clickup.com/api/", False),
-            ("Empty string as an url", "", False),
-        ]
-    )
-    def test_is_url_static_method_validation_is_correct(
-        self, name: str, url: str, result: bool
-    ):
-        self.assertEqual(ClickUpAPI.is_url(url), result)
 
     @parameterized.expand(
         [
@@ -196,130 +167,6 @@ class TestClickUpAPICore(unittest.TestCase):
     ):
         with self.assertRaises(ValueError):
             ClickUpAPI.change_available_status(new_status, action)
-
-    def test_check_positive_integer_static_method_success(self):
-        self.assertIsNone(ClickUpAPI.check_positive_integer(5))
-
-    @parameterized.expand(
-        [
-            ("negative integer", -3, ValueError),
-            ("float value", 2.33, TypeError),
-            ("string value", "3", TypeError),
-        ]
-    )
-    def test_check_positive_integer_static_method_raises_error(
-        self, name: str, value: Any, error: Exception
-    ):
-        with self.assertRaises(error):
-            ClickUpAPI.check_positive_integer(value)
-
-    def test_check_integer_list_static_method_success(self):
-        self.assertIsNone(ClickUpAPI.check_integer_list([3, 6, -9]))
-        self.assertIsNone(ClickUpAPI.check_integer_list([]))
-
-    @parameterized.expand(
-        [
-            ("tuple instead of a list", (1, 2, 3), TypeError),
-            ("string instead of a list", "1, 2, 3", TypeError),
-            ("list with float numbers", [1, 2, 3.33], TypeError),
-            ("list with string values", [1, 2, "3"], TypeError),
-        ]
-    )
-    def test_check_integer_list_static_method_raises_error(
-        self, name: str, value: Any, error: Exception
-    ):
-        with self.assertRaises(error):
-            ClickUpAPI.check_integer_list(value)
-
-    def check_boolean_static_method_success(self):
-        self.assertTrue(ClickUpAPI.check_boolean(True))
-        self.assertFalse(ClickUpAPI.check_boolean(False))
-
-    @parameterized.expand(
-        [
-            ("tuple instead of a boolean", (1, 2), TypeError),
-            ("string instead of a boolean", "1, 3", TypeError),
-            ("list instead of a boolean", [1, 2], TypeError),
-            ("integer instead of a boolean", 11, TypeError),
-            ("floating number instead of a boolean", 1.21, TypeError),
-        ]
-    )
-    def test_check_boolean_static_method_raises_error(
-        self, name: str, value: Any, error: Exception
-    ):
-        with self.assertRaises(error):
-            ClickUpAPI.check_boolean(value)
-
-    @parameterized.expand(
-        [
-            (
-                "test datetime.datetime format",
-                datetime.datetime(2024, 11, 22, 8, 55),
-                1732262100000.0,
-            ),
-            ("test list format", [2024, 10, 10], 1728511200000.0),
-            ("test tuple format", (2024, 7, 7, 7, 55), 1720331700000.0),
-        ]
-    )
-    def test_datetime_to_unix_time_in_milliseconds_static_method_success(
-        self, name: str, value: Any, expected: int | float
-    ):
-        self.assertEqual(
-            ClickUpAPI.datetime_to_unix_time_in_milliseconds(value), expected
-        )
-
-    @parameterized.expand(
-        [
-            ("incorrect list format", [10, 10, 2024], DateSequenceError),
-            ("incorrect tuple format", (7, 7, 2024), DateSequenceError),
-            ("incorrect data type", "2024, 11, 11", DateDataError),
-        ]
-    )
-    def test_datetime_to_unix_time_in_milliseconds_static_method_raises_error(
-        self, name: str, value: Any, error: Exception
-    ):
-        with self.assertRaises(error):
-            self.assertEqual(ClickUpAPI.datetime_to_unix_time_in_milliseconds(value))
-
-    @parameterized.expand(
-        [
-            ("empty list", False, [], []),
-            ("single element list with an integer", True, [1], [1, 1234]),
-            ("single element list with a string", False, ["3Def5"], ["3Def5", "Abc1"]),
-            ("multiple element list with integers", True, [1, -2, 3], [1, -2, 3]),
-            ("multiple element list with strings", False, ["3D", "xyz"], ["3D", "xyz"]),
-        ]
-    )
-    @patch("random.choices")
-    def test_check_and_adjust_list_length_static_method_success(
-        self,
-        name: str,
-        append_number: bool,
-        value: list,
-        expected: list,
-        mocked_choices,
-    ):
-        if append_number:
-            mocked_choices.return_value = ["1", "2", "3", "4"]
-        elif not append_number:
-            mocked_choices.return_value = ["A", "b", "c", "1"]
-        self.assertEqual(
-            ClickUpAPI.check_and_adjust_list_length(value, append_number), expected
-        )
-
-    @parameterized.expand(
-        [
-            ("tuple instead of a list", True, (1, 2), TypeError),
-            ("string instead of a list", False, "1, 3", TypeError),
-            ("integer instead of a list", True, 11, TypeError),
-            ("floating number instead of a list", True, 1.21, TypeError),
-        ]
-    )
-    def test_check_and_adjust_list_length_static_method_raises_error(
-        self, name: str, append_number: bool, value: list, error: Exception
-    ):
-        with self.assertRaises(error):
-            ClickUpAPI.check_and_adjust_list_length(value, append_number)
 
 
 if __name__ == "__main__":

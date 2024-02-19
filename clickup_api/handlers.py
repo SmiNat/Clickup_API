@@ -3,7 +3,7 @@ import random
 import string
 from urllib.parse import urlparse
 
-from .exceptions import DateValueError, DateSequenceError, DateTypeError
+from .exceptions import DateSequenceError, DateTypeError, DateValueError
 
 
 def is_url(url: str) -> bool:
@@ -50,8 +50,8 @@ def check_boolean(value: bool) -> bool:
 def datetime_to_unix_time_in_milliseconds(
     date: datetime.datetime | list[int] | tuple[int],
 ) -> int:
-    """Converts datetime.date or date represented by list of [year, month, day] or
-    tuple of (year, month day) to unix time in milliseconds."""
+    """Converts datetime.date or date represented by the list of [year, month, day] or
+    a tuple of (year, month day) to unix time in milliseconds."""
     if date:
         if isinstance(date, datetime.datetime):
             date = int(date.timestamp() * 1000)
@@ -68,11 +68,14 @@ def datetime_to_unix_time_in_milliseconds(
 
 
 def date_as_string_to_unix_time_in_milliseconds(date: str) -> int:
+    """Converts date expressed as a string of numbers separeted by commas to a list
+    of integers and then converts it to unix time in milliseconds."""
     if date:
-        split_data = [str(_).strip() for _ in date.split(",")]
-        string_to_int = [int(_) for _ in split_data]
-        # print("🖥️ ", datetime_to_unix_time_in_milliseconds(string_to_int))
-        return datetime_to_unix_time_in_milliseconds(string_to_int)
+        if isinstance(date, str):
+            split_data = [str(_).strip() for _ in date.split(",")]
+            string_to_int = [int(_) for _ in split_data]
+            # print("🖥️ ", datetime_to_unix_time_in_milliseconds(string_to_int))
+            return datetime_to_unix_time_in_milliseconds(string_to_int)
     return date
 
 
@@ -126,22 +129,23 @@ def split_string_array(data: list[str]) -> list:
 def split_int_array(data: list[str]) -> list:
     """Converts one-element list with string to a list of integers."""
     if data:
-        print(">>>", data)
         if not isinstance(data, list):
-            raise TypeError("Invalid data type. Only 'list' with a single string element containing numbers is allowed.")
+            raise TypeError(
+                "Invalid data type. Only 'list' with a single string element containing numbers is allowed."
+            )
         if len(data) != 1:
-            raise ValueError("The list must contain a single string element with numbers separated by commas.")
+            raise ValueError(
+                "The list must contain a single string element with numbers separated by commas."
+            )
         if isinstance(data[0], str):
             try:
                 data = [int(str(_).strip()) for _ in data[0].split(",")]
             except ValueError:
-                raise ValueError("The list must contain a single string with numbers separated by commas.")
+                raise ValueError(
+                    "The list must contain a single string with numbers separated by commas."
+                )
         if len(data) == 1 and isinstance(data[0], int):
-            random_value = int("".join(
-                random.choices(string.digits, k=8)
-            ))
+            random_value = int("".join(random.choices(string.digits, k=8)))
             data.append(random_value)
         return data
     return data
-
-

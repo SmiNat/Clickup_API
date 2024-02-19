@@ -115,7 +115,7 @@ def split_string_array(data: list[str]) -> list:
         if not isinstance(data, list):
             raise TypeError("Invalid data type. Only 'list' of strings is allowed.")
         if len(data) > 1:
-            return data
+            return data  # lists with more than one element are not validated
         split_data = [str(_).strip() for _ in data[0].split(",")]
         if len(split_data) == 1:
             random_value = "".join(
@@ -128,7 +128,7 @@ def split_string_array(data: list[str]) -> list:
 
 def split_int_array(data: list[str]) -> list:
     """Converts one-element list with string to a list of integers."""
-    if data:
+    if data:    # empty list is not validated
         if not isinstance(data, list):
             raise TypeError(
                 "Invalid data type. Only 'list' with a single string element containing numbers is allowed."
@@ -144,8 +144,8 @@ def split_int_array(data: list[str]) -> list:
                 raise ValueError(
                     "The list must contain a single string with numbers separated by commas."
                 )
-        if len(data) == 1 and isinstance(data[0], int):
+        if len(data) == 1 and isinstance(data[0], int) and not isinstance(data[0], bool):
             random_value = int("".join(random.choices(string.digits, k=8)))
             data.append(random_value)
-        return data
+        return data # single-element lists with element other than integer are not validated
     return data

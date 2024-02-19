@@ -1,8 +1,6 @@
-import os
 from typing import Annotated
 
 import requests
-from dotenv import load_dotenv
 from fastapi import APIRouter, Query
 
 from clickup_api.handlers import (
@@ -10,17 +8,12 @@ from clickup_api.handlers import (
     split_int_array,
     split_string_array,
 )
+from clickup_api_fastapi.main import URL, HEADER
 
-load_dotenv()
 
 # uvicorn clickup_api_fastapi.main:app --reload
 
 router = APIRouter(tags=["clickup", "get methods"])
-
-# TOKEN = os.environ.get("CLICKUP_MY_TOKEN")
-TOKEN = os.environ.get("CLICKUP_ADDITIONAL_TOKEN")
-URL = os.environ.get("CLICKUP_URL")
-HEADER = {"Authorization": TOKEN, "Content-Type": "application/json"}
 
 
 @router.get("/authorized_teams_workspaces")

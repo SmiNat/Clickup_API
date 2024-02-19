@@ -1,7 +1,8 @@
 # Manual for using ClickUp API
 
 ## Introduction
-To use the ClickUp API effectively, a good understanding of the CickUp Hierarchy and URL construction is required.
+To use the ClickUp API effectively, a good understanding of the CickUp Hierarchy and
+URL construction is required.
 For official documentation see:
 - https://help.clickup.com/hc/en-us
 - https://clickup.com/api/
@@ -30,7 +31,7 @@ https://clickup.com/api/developer-portal/authentication/
 
 ![Postman - token use](clickup_api_screenshots/token_postman.png)
 
-### ClickUpAPI Class
+### ClickUpAPI Class(OOP)
 
 Using ClickUp API via Python class ClickUpAPI requires token as an authentication key.
 There are two ways of using token credentials in ClickUpAPI class:
@@ -39,14 +40,24 @@ There are two ways of using token credentials in ClickUpAPI class:
 
         instance_name = ClickUpAPI(token=token_value)
 
-    An instance cannot be created without a token. Validation of token credentials is executed at request calls made at the use of class methods.
-    Token used at instance initiation is a default token used in request header and therefore can be used to all class methods.
+    An instance cannot be created without a token. Validation of token credentials is
+    executed at request calls made at the use of class methods.
+    Token used at instance initiation is a default token used in request header and
+    therefore can be used to all class methods.
 
-    2. Overriding token used for request header at each request made by selected instance methods (optional).
+    2. Overriding token used for request header at each request made by selected
+    instance methods (optional).
 
         instance_name.instance_method(token=new_token)
 
-    User can easily change token value for each request method made through instance method if this method accepts token value as a parameter. If token parameter is not set, request will use token value used to initiate an instance.
+    User can easily change token value for each request method made through instance
+    method if this method accepts token value as a parameter. If token parameter is not
+    set, request will use token value used to initiate an instance.
+
+### ClickUpAPI - FastAPI
+
+For FastAPI methods token is set in main.py file. Request header always uses the token
+and the basic url address set in main.py file.
 
 
 ## Methods based on ClickUp API
@@ -75,11 +86,13 @@ There are two ways of using token credentials in ClickUpAPI class:
     - Returns a dictionary of usernames with their time tracked from time entries request.
     Use 'assignee' parameter to designate users based on their IDs.
     Use 'team_id' parameter to indicate workspaces from which time tracked should be obtained.
-    Use 'start_date' and 'end_date' parameters to select date range in which users were tracking time for their tasks.
+    Use 'start_date' and 'end_date' parameters to select date range in which users
+    were tracking time for their tasks.
 - user_tasks
     - Returns a dictionary with the user's ('assignee') tasks.
     Use 'team_id' parameter to indicate workspaces from which tasks should be obtained.
-    Use 'start_date' and 'end_date' parameters to select the time at which the tasks were conducted.
+    Use 'start_date' and 'end_date' parameters to select the time at which the tasks
+    were conducted.
 -
 
 

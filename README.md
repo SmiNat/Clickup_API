@@ -117,6 +117,7 @@ There are two ways of using token credentials in ClickUpAPI class:
                             of invalid type (integer required).
     SHARD_001       500     Invalid input syntax for integer / Incorrect data type
                             (usually string input instead of an integer) / Invalid ID.
+    TEAM_110        403     Team must be on enterprise plan.
     TIMEENTRYM_006  Team not authorized - either user does not have required permissions
                     or 'team_id' (workspace) does not exist (invalid ID).
     TIMEENTRY_007   400     Invalid 'assignee' option. Check user_id.

@@ -1,15 +1,15 @@
 from __future__ import annotations
-from typing import Any
-from dotenv import load_dotenv
-from urllib.parse import urlparse
+
 import datetime
-import random
+from typing import Any
+
 import requests
-import string
+from dotenv import load_dotenv
 
 from .enums import ClickupActions
-from .exceptions import DateSequenceError, DateTypeError, DateDataError
-
+from .handlers import (check_and_adjust_list_length, check_boolean,
+                       check_integer_list, check_positive_integer, check_token,
+                       datetime_to_unix_time_in_milliseconds, is_url)
 
 load_dotenv()
 
@@ -65,97 +65,6 @@ class ClickUpAPI:
         elif action == ClickupActions.REMOVE and status_name in cls.available_statuses:
             cls.available_statuses.remove(status_name)
 
-    @staticmethod
-    def is_url(url: str) -> bool:
-        """Validates url address."""
-        try:
-            result = urlparse(url)
-            return all([result.scheme, result.netloc])
-        except ValueError:
-            return False
-
-    @staticmethod
-    def check_token(token: str) -> None:
-        """Validates token."""
-        if not isinstance(token, str):
-            raise TypeError(f"Token must be of type: str, not {type(token)}.")
-        if isinstance(token, str) and len(token) == 0:
-            raise ValueError("Empty string is not allowed.")
-
-    @staticmethod
-    def check_positive_integer(value: int) -> None:
-        """Validates if argument is a positive integer."""
-        if not isinstance(value, int):
-            raise TypeError(f"'{value}' must be an integer, not {type(value)} type.")
-        if isinstance(value, int) and value < 0:
-            raise ValueError("Only positive number is allowed.")
-
-    @staticmethod
-    def check_integer_list(data: list[int]) -> None:
-        """Validates if data is a list of integers."""
-        if not isinstance(data, list):
-            raise TypeError(f"'{data}' must be a list, not {type(data)} type.")
-        for element in data:
-            if not isinstance(element, int):
-                raise TypeError("All list items must be integers.")
-
-    @staticmethod
-    def check_boolean(value: bool) -> bool:
-        """Validates if value is a boolean."""
-        if not isinstance(value, bool):
-            raise TypeError(f"'{value}' must be of type: boolean, not {type(value)}.")
-        return value
-
-    @staticmethod
-    def datetime_to_unix_time_in_milliseconds(
-        date: datetime.datetime | list[int] | tuple[int],
-    ) -> int:
-        """Converts datetime.date or date represented by list of [year, month, day] or
-        tuple of (year, month day) to unix time in milliseconds."""
-        if date:
-            if isinstance(date, datetime.datetime):
-                date = int(date.timestamp() * 1000)
-            elif isinstance(date, (list, tuple)) and len(date) >= 3 and len(date) <= 6:
-                try:
-                    date = int(datetime.datetime(*date).timestamp() * 1000)
-                except ValueError as error:
-                    raise DateSequenceError(error)
-                except TypeError as error:
-                    raise DateTypeError(error)
-            else:
-                raise DateDataError()
-        return date
-
-    @staticmethod
-    def check_and_adjust_list_length(data: list, append_number: bool = False) -> list:
-        """Validates if type of data is a list. If a list contains only one element,
-        appends either random string or random number.
-        Args:
-            data (list):
-                Array of strings or array of numbers as required for query parameter in ClickUp API.
-            append_number (bool, optional):
-                If True appends to a list random 8-digit number.
-                If False appends to a list random 8-character string. Defaults to False.
-                Only executes when the length of the data in a list is one.
-        Raises:
-            TypeError: Raises Invalid data type error.
-        Returns:
-            list:
-                Returns a list of minimum two elements or an empty list.
-        """
-        if data:
-            if not isinstance(data, list):
-                raise TypeError("Invalid data type. Only 'list' of strings is allowed.")
-            if len(data) == 1:
-                if append_number:
-                    random_value = int("".join(random.choices(string.digits, k=8)))
-                else:
-                    random_value = "".join(
-                        random.choices(string.ascii_letters + string.digits, k=8)
-                    )
-                data.append(random_value)
-        return data
-
     @property
     def token(self) -> str:
         """Returns token."""
@@ -164,7 +73,7 @@ class ClickUpAPI:
     @token.setter
     def token(self, new_token: str) -> None:
         """Sets a new token."""
-        self.check_token(new_token)
+        check_token(new_token)
         self._token = str(new_token)
 
     @property
@@ -179,7 +88,7 @@ class ClickUpAPI:
             self._api_url = self._API_DEFAULT_URL
         elif not isinstance(url, str):
             raise TypeError(f"Invalid URL type. URL address must be a string.")
-        elif not self.is_url(url):
+        elif not is_url(url):
             raise ValueError("'{url}' is not a valid URL address.")
         elif url.endswith("/"):
             self._api_url = url
@@ -204,7 +113,7 @@ class ClickUpAPI:
         if not token:
             api_key = str(self._token)
         else:
-            self.check_token(token)
+            check_token(token)
             api_key = str(token)
         request_header = {"Authorization": api_key, "Content-Type": content_type}
         return request_header
@@ -213,8 +122,8 @@ class ClickUpAPI:
 class ClickUpGETMethods(ClickUpAPI):
     """Methods for GET requests in ClickUp API."""
 
-    def __init__(self, token: str, api_url: str | None = None) -> None:
-        super().__init__(token, api_url)
+    # def __init__(self, token: str, api_url: str | None = None) -> None:
+    #     super().__init__(token, api_url)
 
     def get_authorized_teams_workspaces(
         self, as_json: bool = True, token: str | None = None
@@ -330,7 +239,7 @@ class ClickUpGETMethods(ClickUpAPI):
         url = self.api_url + "space/" + str(space_id) + "/folder"
 
         query = {
-            "archived": "true" if self.check_boolean(archived) else "false",
+            "archived": "true" if check_boolean(archived) else "false",
         }
 
         response = requests.get(url, headers=self.header(token=token), params=query)
@@ -528,62 +437,64 @@ class ClickUpGETMethods(ClickUpAPI):
                 "A 'custom_fields' functionality is not yet implemented."
             )
 
+        print(check_and_adjust_list_length(statuses))
+
         query = {
-            "archived": "true" if self.check_boolean(archived) else "false",
+            "archived": "true" if check_boolean(archived) else "false",
             "include_markdown_description": (
-                "true" if self.check_boolean(include_markdown_description) else "false"
+                "true" if check_boolean(include_markdown_description) else "false"
             ),
             "page": page,
             "order_by": order_by,
-            "reverse": "true" if self.check_boolean(reverse) else "false",
-            "subtasks": "true" if self.check_boolean(subtasks) else None,
-            "statuses": self.check_and_adjust_list_length(statuses),
-            "include_closed": "true" if self.check_boolean(include_closed) else "false",
-            "assignees": self.check_and_adjust_list_length(assignees),
-            "tags": self.check_and_adjust_list_length(tags),
+            "reverse": "true" if check_boolean(reverse) else "false",
+            "subtasks": "true" if check_boolean(subtasks) else None,
+            "statuses": check_and_adjust_list_length(statuses),
+            "include_closed": "true" if check_boolean(include_closed) else "false",
+            "assignees": check_and_adjust_list_length(assignees),
+            "tags": check_and_adjust_list_length(tags),
             "due_date_gt": (
-                self.datetime_to_unix_time_in_milliseconds(due_date_gt)
+                datetime_to_unix_time_in_milliseconds(due_date_gt)
                 if due_date_gt
                 else due_date_gt
             ),
             "due_date_lt": (
-                self.datetime_to_unix_time_in_milliseconds(due_date_lt)
+                datetime_to_unix_time_in_milliseconds(due_date_lt)
                 if due_date_lt
                 else due_date_lt
             ),
             "date_created_gt": (
-                self.datetime_to_unix_time_in_milliseconds(date_created_gt)
+                datetime_to_unix_time_in_milliseconds(date_created_gt)
                 if date_created_gt
                 else date_created_gt
             ),
             "date_created_lt": (
-                self.datetime_to_unix_time_in_milliseconds(date_created_lt)
+                datetime_to_unix_time_in_milliseconds(date_created_lt)
                 if date_created_lt
                 else date_created_lt
             ),
             "date_updated_gt": (
-                self.datetime_to_unix_time_in_milliseconds(date_updated_gt)
+                datetime_to_unix_time_in_milliseconds(date_updated_gt)
                 if date_updated_gt
                 else date_updated_gt
             ),
             "date_updated_lt": (
-                self.datetime_to_unix_time_in_milliseconds(date_updated_lt)
+                datetime_to_unix_time_in_milliseconds(date_updated_lt)
                 if date_updated_lt
                 else date_updated_lt
             ),
             "date_done_gt": (
-                self.datetime_to_unix_time_in_milliseconds(date_done_gt)
+                datetime_to_unix_time_in_milliseconds(date_done_gt)
                 if date_done_gt
                 else date_done_gt
             ),
             "date_done_lt": (
-                self.datetime_to_unix_time_in_milliseconds(date_done_lt)
+                datetime_to_unix_time_in_milliseconds(date_done_lt)
                 if date_done_lt
                 else date_done_lt
             ),
             "custom_fields": custom_fields,
             "custom_items": (
-                self.check_integer_list(custom_items) if custom_items else custom_items
+                check_integer_list(custom_items) if custom_items else custom_items
             ),
         }
 
@@ -636,10 +547,10 @@ class ClickUpGETMethods(ClickUpAPI):
             "custom_task_ids": custom_task_ids,
             "team_id": team_id,
             "include_subtasks": (
-                "true" if self.check_boolean(include_subtasks) else "false"
+                "true" if check_boolean(include_subtasks) else "false"
             ),
             "include_markdown_description": (
-                "true" if self.check_boolean(include_markdown_description) else "false"
+                "true" if check_boolean(include_markdown_description) else "false"
             ),
         }
 
@@ -763,19 +674,17 @@ class ClickUpGETMethods(ClickUpAPI):
         url = self.api_url + "team/" + str(team_id) + "/time_entries"
 
         if start_date:
-            start_date = self.datetime_to_unix_time_in_milliseconds(start_date)
+            start_date = datetime_to_unix_time_in_milliseconds(start_date)
         else:
-            start_date = self.datetime_to_unix_time_in_milliseconds(
+            start_date = datetime_to_unix_time_in_milliseconds(
                 datetime.datetime(
                     datetime.date.today().year, datetime.date.today().month, 1
                 )
             )
         if end_date:
-            end_date = self.datetime_to_unix_time_in_milliseconds(end_date)
+            end_date = datetime_to_unix_time_in_milliseconds(end_date)
         else:
-            end_date = self.datetime_to_unix_time_in_milliseconds(
-                datetime.datetime.now()
-            )
+            end_date = datetime_to_unix_time_in_milliseconds(datetime.datetime.now())
 
         if assignee:
             if isinstance(assignee, str):
@@ -799,9 +708,7 @@ class ClickUpGETMethods(ClickUpAPI):
                 user_ids = ",".join(str(element) for element in assignee)
 
         custom_task_ids = (
-            "true"
-            if (query_team_id or self.check_boolean(custom_task_ids))
-            else "false"
+            "true" if (query_team_id or check_boolean(custom_task_ids)) else "false"
         )
 
         query = {
@@ -809,10 +716,10 @@ class ClickUpGETMethods(ClickUpAPI):
             "end_date": end_date,
             "assignee": assignee if not assignee else str(user_ids),
             "include_task_tags": (
-                "true" if self.check_boolean(include_task_tags) else "false"
+                "true" if check_boolean(include_task_tags) else "false"
             ),
             "include_location_names": (
-                "true" if self.check_boolean(include_location_names) else "false"
+                "true" if check_boolean(include_location_names) else "false"
             ),
             "space_id": space_id,
             "folder_id": folder_id,
@@ -902,11 +809,11 @@ class ClickUpGETMethods(ClickUpAPI):
         url = self.api_url + "task/" + str(task_id) + "/comment"
 
         if start:
-            start = self.datetime_to_unix_time_in_milliseconds(start)
+            start = datetime_to_unix_time_in_milliseconds(start)
 
         query = {
             "custom_task_ids": (
-                "true" if self.check_boolean(custom_task_ids) or team_id else "false"
+                "true" if check_boolean(custom_task_ids) or team_id else "false"
             ),
             "team_id": team_id,
             "start": start,
@@ -957,7 +864,7 @@ class ClickUpGETMethods(ClickUpAPI):
         url = self.api_url + "list/" + str(list_id) + "/comment"
 
         if start:
-            start = self.datetime_to_unix_time_in_milliseconds(start)
+            start = datetime_to_unix_time_in_milliseconds(start)
 
         query = {
             "start": start,
@@ -1008,7 +915,7 @@ class ClickUpGETMethods(ClickUpAPI):
         url = self.api_url + "view/" + str(view_id) + "/comment"
 
         if start:
-            start = self.datetime_to_unix_time_in_milliseconds(start)
+            start = datetime_to_unix_time_in_milliseconds(start)
 
         query = {
             "start": start,

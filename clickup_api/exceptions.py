@@ -29,7 +29,7 @@ class DateTypeError(Exception):
         return str(self.message)
 
 
-class DateDataError(Exception):
+class DateValueError(Exception):
     """Exception raised for incorrect date data input."""
 
     def __init__(self) -> None:

@@ -11,16 +11,16 @@ For official documentation see:
 
 Official documentation:
 https://help.clickup.com/hc/en-us/articles/13856392825367-Intro-to-the-Hierarchy
-![Clickup Hierarchy](clickup_api_manual_screenshots/hierarchy.png)
+![Clickup Hierarchy](clickup_api_screenshots/hierarchy.png)
 
 In practice:
-![Clickup Project Hierarchy](clickup_api_manual_screenshots/project_hierarchy.png)
+![Clickup Project Hierarchy](clickup_api_screenshots/project_hierarchy.png)
 
 ## Getting credentials
 ### Token
 
-![Get token - Step 1](clickup_api_manual_screenshots/token_step_1.png)
-![Get token - Step 2](clickup_api_manual_screenshots/token_step_2.png)
+![Get token - Step 1](clickup_api_screenshots/token_step_1.png)
+![Get token - Step 2](clickup_api_screenshots/token_step_2.png)
 
 https://clickup.com/api/developer-portal/authentication/
 
@@ -28,7 +28,7 @@ https://clickup.com/api/developer-portal/authentication/
 ## Using credentials
 ### Postman
 
-![Postman - token use](clickup_api_manual_screenshots/token_postman.png)
+![Postman - token use](clickup_api_screenshots/token_postman.png)
 
 ### ClickUpAPI Class
 
@@ -86,31 +86,44 @@ There are two ways of using token credentials in ClickUpAPI class:
 ## ClickUp error messages
 ### Most common ClickUp errors returned while using API
 
-    ECODE           Message/meaning
-    ITEMV2_003      Internal server error - can be caused by incorrect data type or
-                    incorrect value.
-    LOC_008         Unsupported Entity - probably caused by using token with not high
-                    enough credentials.
-                    Try to use token with higher access or narrow down request by using
-                    query parameters.
-    OAUTH_017       Authorization header required.
-    OAUTH_019       Oauth token not found - probably caused by using token with not high
-                    enough credentials.
-    OAUTH_027       A team (Workspace) was not authorized by the user for a particular
-                    access token / invalid ID.
-    OAUTH_040       Parameter must be an array (list or tuple) - at least two elements required
-                    (empty string as a second element can solve the issue in case of filtering
-                    by only one element in list/tuple).
-    PUBAPITASK_008  Custom items must be an arra - also appears if list containsonly one element.
-                    Add second element to solve the isssue. Second element can be anything
-                    as long as it has correct data type (eg. str or int depending on requirements).
-    PUBAPITASK_009  Custom items must be an array of numbers - some of list elementsare
-                    of invalid type (integer required).
-    SHARD_001       Incorrect data type (usually string input instead of an integer).
+    ECODE           Status  Message/meaning
+    ACCESS_083      401     Not found / You do not have access to this task.
+    ACCESS_190      404     Not found.
+    GROUP_HELPERS_001  500  Invalid input syntax for type uuid. Check ID for field value.
+    INPUT_002/03    400     Invalid ID.
+    ITEM_155        400     Field must be a json parsable string (array of strings).
+    ITEM_156        400     Field must be an array.
+    ITEMV2_003      500     Internal server error - can be caused by incorrect data type or
+                            incorrect value (eg. 'order by' non-existing type name or typing
+                            string instead of a list or an integer).
+    LOC_008         400     Unsupported Entity - probably caused by using token with not high
+                            enough credentials. Try to use token with higher access or narrow down
+                            request by using query parameters.
+    OAUTH_017       400     Authorization header required.
+    OAUTH_019       401     Oauth token not found - probably caused by using token with not high
+                            enough credentials.
+    OAUTH_023/27/   401     A team (Workspace) was not authorized by the user for a particular
+    /57/61                  access token / invalid ID of a team / list / space / folder.
+    OAUTH_040/      400     Parameter must be an array (list or tuple) - at least two elements
+                            required (empty string as a second element can solve the issue in case
+                            of filtering by only one element in list/tuple).
+    OAUTH_064       400     View must be a conversation / invalid view ID.
+    PAGE_047        400     Must be a task view / invalid view ID.
+    PUBAPITASK_008  400     Custom items must be an arra - also appears if list containsonly
+                            one element. Add second element to solve the isssue. Second element
+                            can be anything as long as it has correct data type
+                            (eg. str or int depending on requirements).
+    PUBAPITASK_009  400     Custom items must be an array of numbers - some of list elements are
+                            of invalid type (integer required).
+    SHARD_001       500     Invalid input syntax for integer / Incorrect data type
+                            (usually string input instead of an integer) / Invalid ID.
     TIMEENTRYM_006  Team not authorized - either user does not have required permissions
                     or 'team_id' (workspace) does not exist (invalid ID).
+    TIMEENTRY_007   400     Invalid 'assignee' option. Check user_id.
     TIMEENTRY_059   You have no access - use token with higher access permissions.
+    TIMEENTRY_062   400     Hierarchy ID should be integer - check space / list / folder id number.
     TIMEENTRY_065   Only one hierarchy ID could be provided - more than one hierarchy
                     parameter was given to narrow search area (e.g. space_id with folder_id)
                     - use only one hierarchy parameter per search.
+    TIMEENTRY_072   500     Invalid input syntax for integer - check if date is in Epoch (integer).
     ... to be continued ...

@@ -56,9 +56,11 @@ There are two ways of using token credentials in ClickUpAPI class:
 
 ### ClickUpAPI - FastAPI
 
-For FastAPI methods token is set in main.py file. Request header always uses the token
-and the basic url address set in main.py file.
+For FastAPI methods token is set in get_methods.py file. Request header always uses the token
+and the basic url address set in get_methods.py file.
 
+To start a FastAPI based on ClickUp API use commend:
+> uvicorn clickup_api_fastapi.main:app --reload
 
 ## Methods based on ClickUp API
 

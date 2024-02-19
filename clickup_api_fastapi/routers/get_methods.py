@@ -3,7 +3,7 @@ from typing import Annotated
 
 import requests
 from dotenv import load_dotenv
-from fastapi import FastAPI, Query
+from fastapi import APIRouter, Query
 
 from clickup_api.handlers import (
     date_as_string_to_unix_time_in_milliseconds,
@@ -13,9 +13,9 @@ from clickup_api.handlers import (
 
 load_dotenv()
 
-# uvicorn clickup_api_fastapi.fastapi_get_methods:app --reload
+# uvicorn clickup_api_fastapi.main:app --reload
 
-app = FastAPI()
+router = APIRouter(tags=["clickup", "get methods"])
 
 # TOKEN = os.environ.get("CLICKUP_MY_TOKEN")
 TOKEN = os.environ.get("CLICKUP_ADDITIONAL_TOKEN")
@@ -23,14 +23,14 @@ URL = os.environ.get("CLICKUP_URL")
 HEADER = {"Authorization": TOKEN, "Content-Type": "application/json"}
 
 
-@app.get("/authorized_teams_workspaces")
+@router.get("/authorized_teams_workspaces")
 async def get_authorized_teams_workspaces():
     url = f"{URL}/team/"
     response = requests.get(url=url, headers=HEADER)
     return response.json()
 
 
-@app.get("/teams")
+@router.get("/teams")
 async def get_teams(team_id: int | None = None, group_ids: str | None = None):
     url = f"{URL}/group"
     query = {"team_id": team_id, "group_ids": group_ids}
@@ -38,14 +38,14 @@ async def get_teams(team_id: int | None = None, group_ids: str | None = None):
     return response.json()
 
 
-@app.get("/spaces/{team_id}")
+@router.get("/spaces/{team_id}")
 async def get_spaces(team_id: int):
     url = f"{URL}/team/{str(team_id)}/space"
     response = requests.get(url, headers=HEADER)
     return response.json()
 
 
-@app.get("/folders/{space_id}")
+@router.get("/folders/{space_id}")
 async def get_folders(space_id: int, archived: bool = False):
     url = f"{URL}/space/{str(space_id)}/folder"
     query = {"archived": "true" if archived else "false"}
@@ -53,7 +53,7 @@ async def get_folders(space_id: int, archived: bool = False):
     return response.json()
 
 
-@app.get("/lists/{folder_id}")
+@router.get("/lists/{folder_id}")
 async def get_lists(folder_id: int, archived: bool = False):
     url = f"{URL}/folder/{str(folder_id)}/list"
     query = {"archived": "true" if archived else "false"}
@@ -61,7 +61,7 @@ async def get_lists(folder_id: int, archived: bool = False):
     return response.json()
 
 
-@app.get("/tasks/{list_id}")
+@router.get("/tasks/{list_id}")
 async def get_tasks(
     list_id: int,
     archived: bool = False,
@@ -191,7 +191,7 @@ async def get_tasks(
     return response.json()
 
 
-@app.get("/task/{task_id}")
+@router.get("/task/{task_id}")
 async def get_task(
     task_id: str,
     custom_task_ids: bool = False,
@@ -216,14 +216,14 @@ async def get_task(
     return response.json()
 
 
-@app.get("/user/{team_id}/{user_id}")
+@router.get("/user/{team_id}/{user_id}")
 async def get_user(team_id: int, user_id: int):
     url = f"{URL}/team/{str(team_id)}/user/{str(user_id)}"
     response = requests.get(url, headers=HEADER)
     return response.json()
 
 
-@app.get("/team/{team_id}/time_entries")
+@router.get("/team/{team_id}/time_entries")
 async def get_time_entries(
     team_id: int,
     start_date: Annotated[

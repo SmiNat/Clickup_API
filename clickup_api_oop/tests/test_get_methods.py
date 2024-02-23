@@ -15,6 +15,33 @@ load_dotenv()
 # python -m unittest clickup_api_oop.tests.test_clickup_api_get_methods. --f
 
 
+class TestClickUpGETAuthorizedUserRequests(unittest.TestCase):
+    """Tests for get_authorized_user method of ClickUpGETMethods class."""
+
+    @classmethod
+    def setUpClass(cls):
+        cls.token = os.environ.get("CLICKUP_MY_TOKEN")
+        cls.instance = ClickUpGETMethods(cls.token)
+
+    def test_get_authorized_user_returns_200(self):
+        response = self.instance.get_authorized_user(as_json=False)
+        self.assertEqual(response.status_code, 200)
+
+    def test_get_authorized_user_invalid_token_returns_401(self):
+        response = self.instance.get_authorized_user(
+            as_json=False, token="TokenRandomCode123"
+        )
+        self.assertEqual(response.status_code, 401)
+
+    def test_get_authorized_user_returns_json_dict(self):
+        response = self.instance.get_authorized_user(as_json=True)
+        self.assertIsInstance(response, dict)
+
+    def test_get_authorized_user_returns_response_object(self):
+        response = self.instance.get_authorized_user(as_json=False)
+        self.assertIsInstance(response, requests.models.Response)
+
+
 class TestClickUpGETAuthorizedTeamsWorkspacesRequests(unittest.TestCase):
     """Tests for get_authorized_teams_workspaces method of ClickUpGETMethods class."""
 
@@ -125,6 +152,46 @@ class TestClickUpGETSpacesRequests(unittest.TestCase):
         self.assertIsInstance(response, requests.models.Response)
 
 
+class TestClickUpGETSpaceRequests(unittest.TestCase):
+    """Tests for get_space method of ClickUpGETMethods class."""
+
+    @classmethod
+    def setUpClass(cls):
+        cls.token = os.environ.get("CLICKUP_MY_TOKEN")
+        cls.instance = ClickUpGETMethods(cls.token)
+        cls.space = os.environ.get("CLICKUP_SPACE_ID_MQUBE")
+
+    def test_get_space_with_required_space_id_returns_200(self):
+        response = self.instance.get_space(space_id=self.space, as_json=False)
+        self.assertEqual(response.status_code, 200)
+
+    def test_get_space_without_space_id_returns_400(self):
+        response = self.instance.get_space(space_id=None, as_json=False)
+        self.assertEqual(response.status_code, 400)
+
+    def test_get_space_with_invalid_space_id_returns_401(self):
+        response = self.instance.get_space(space_id="invalid10", as_json=False)
+        self.assertEqual(response.status_code, 401)
+
+    def test_get_space_with_invalid_space_id_returns_401(self):
+        response = self.instance.get_space(space_id=123456789, as_json=False)
+        self.assertEqual(response.status_code, 401)
+
+    def test_get_space_invalid_token_returns_401(self):
+        response = self.instance.get_space(
+            space_id=self.space, as_json=False, token="TokenRandomCode123"
+        )
+        self.assertEqual(response.status_code, 401)
+
+    def test_get_space_returns_json_dict(self):
+        response = self.instance.get_space(space_id=self.space, as_json=True)
+        self.assertIsInstance(response, dict)
+
+    def test_get_space_returns_response_object(self):
+        response = self.instance.get_space(space_id=self.space, as_json=False)
+        self.assertIsInstance(response, requests.models.Response)
+
+
 class TestClickUpGETFoldersRequests(unittest.TestCase):
     """Tests for get_folders method of ClickUpGETMethods class."""
 
@@ -169,6 +236,46 @@ class TestClickUpGETFoldersRequests(unittest.TestCase):
             space_id=self.space, archived=True, as_json=False
         )
         self.assertEqual(response.status_code, 200)
+
+
+class TestClickUpGETFolderRequests(unittest.TestCase):
+    """Tests for get_folder method of ClickUpGETMethods class."""
+
+    @classmethod
+    def setUpClass(cls):
+        cls.token = os.environ.get("CLICKUP_MY_TOKEN")
+        cls.instance = ClickUpGETMethods(cls.token)
+        cls.folder = os.environ.get("CLICKUP_FOLDER_ID_TEST_IN_SPACE_MQUBE")
+
+    def test_get_folder_with_required_folder_id_returns_200(self):
+        response = self.instance.get_folder(folder_id=self.folder, as_json=False)
+        self.assertEqual(response.status_code, 200)
+
+    def test_get_folder_without_folder_id_returns_400(self):
+        response = self.instance.get_folder(folder_id=None, as_json=False)
+        self.assertEqual(response.status_code, 400)
+
+    def test_get_folder_with_invalid_folder_id_returns_400(self):
+        response = self.instance.get_folder(folder_id="invalid10", as_json=False)
+        self.assertEqual(response.status_code, 400)
+
+    def test_get_folder_with_invalid_folder_id_returns_401(self):
+        response = self.instance.get_folder(folder_id=123456789, as_json=False)
+        self.assertEqual(response.status_code, 401)
+
+    def test_get_folder_invalid_token_returns_401(self):
+        response = self.instance.get_folder(
+            folder_id=self.folder, as_json=False, token="TokenRandomCode123"
+        )
+        self.assertEqual(response.status_code, 401)
+
+    def test_get_folder_returns_json_dict(self):
+        response = self.instance.get_folder(folder_id=self.folder, as_json=True)
+        self.assertIsInstance(response, dict)
+
+    def test_get_folder_returns_response_object(self):
+        response = self.instance.get_folder(folder_id=self.folder, as_json=False)
+        self.assertIsInstance(response, requests.models.Response)
 
 
 class TestClickUpGETListsRequests(unittest.TestCase):
@@ -217,8 +324,94 @@ class TestClickUpGETListsRequests(unittest.TestCase):
         self.assertEqual(response.status_code, 200)
 
 
+class TestClickUpGETListRequests(unittest.TestCase):
+    """Tests for get_list method of ClickUpGETMethods class."""
+
+    @classmethod
+    def setUpClass(cls):
+        cls.token = os.environ.get("CLICKUP_MY_TOKEN")
+        cls.instance = ClickUpGETMethods(cls.token)
+        cls.list = os.environ.get("CLICKUP_LIST_ID_LIST_IN_FOLDER_TEST_IN_MQUBE")
+
+    def test_get_list_with_required_list_id_returns_200(self):
+        response = self.instance.get_list(list_id=self.list, as_json=False)
+        self.assertEqual(response.status_code, 200)
+
+    def test_get_list_without_list_id_returns_400(self):
+        response = self.instance.get_list(list_id=None, as_json=False)
+        self.assertEqual(response.status_code, 400)
+
+    def test_get_list_with_invalid_list_id_returns_400(self):
+        response = self.instance.get_list(list_id="invalid10", as_json=False)
+        self.assertEqual(response.status_code, 400)
+
+    def test_get_list_with_invalid_list_id_returns_401(self):
+        response = self.instance.get_list(list_id=123456789, as_json=False)
+        self.assertEqual(response.status_code, 401)
+
+    def test_get_list_invalid_token_returns_401(self):
+        response = self.instance.get_list(
+            list_id=self.list, as_json=False, token="TokenRandomCode123"
+        )
+        self.assertEqual(response.status_code, 401)
+
+    def test_get_list_returns_json_dict(self):
+        response = self.instance.get_list(list_id=self.list, as_json=True)
+        self.assertIsInstance(response, dict)
+
+    def test_get_list_returns_response_object(self):
+        response = self.instance.get_list(list_id=self.list, as_json=False)
+        self.assertIsInstance(response, requests.models.Response)
+
+
+class TestClickUpGETFolderlessListsRequests(unittest.TestCase):
+    """Tests for get_folderless_lists method of ClickUpGETMethods class."""
+
+    @classmethod
+    def setUpClass(cls):
+        cls.token = os.environ.get("CLICKUP_MY_TOKEN")
+        cls.instance = ClickUpGETMethods(cls.token)
+        cls.space = os.environ.get("CLICKUP_SPACE_ID_MQUBE")
+
+    def test_get_folderless_lists_with_required_space_id_returns_200(self):
+        response = self.instance.get_folderless_lists(space_id=self.space, as_json=False)
+        self.assertEqual(response.status_code, 200)
+
+    def test_get_folderless_lists_without_space_id_returns_400(self):
+        response = self.instance.get_folderless_lists(space_id=None, as_json=False)
+        self.assertEqual(response.status_code, 400)
+
+    def test_get_folderless_lists_with_invalid_space_id_returns_400(self):
+        response = self.instance.get_folderless_lists(space_id="invalid10", as_json=False)
+        self.assertEqual(response.status_code, 400)
+
+    def test_get_folderless_lists_with_invalid_space_id_returns_401(self):
+        response = self.instance.get_folderless_lists(space_id=123456789, as_json=False)
+        self.assertEqual(response.status_code, 401)
+
+    def test_get_folderless_lists_invalid_token_returns_401(self):
+        response = self.instance.get_folderless_lists(
+            space_id=self.space, as_json=False, token="TokenRandomCode123"
+        )
+        self.assertEqual(response.status_code, 401)
+
+    def test_get_folderless_lists_returns_json_dict(self):
+        response = self.instance.get_folderless_lists(space_id=self.space, as_json=True)
+        self.assertIsInstance(response, dict)
+
+    def test_get_folderless_lists_returns_response_object(self):
+        response = self.instance.get_folderless_lists(space_id=self.space, as_json=False)
+        self.assertIsInstance(response, requests.models.Response)
+
+    def test_get_folderless_lists_with_archived_returns_200(self):
+        response = self.instance.get_folderless_lists(
+            space_id=self.space, archived=True, as_json=False
+        )
+        self.assertEqual(response.status_code, 200)
+
+
 class TestClickUpGETTasksRequests(unittest.TestCase):
-    """Tests for get_task method of ClickUpGETMethods class."""
+    """Tests for get_tasks method of ClickUpGETMethods class."""
 
     @classmethod
     def setUpClass(cls):
@@ -685,33 +878,6 @@ class TestClickUpGETTimeEntriesRequests(unittest.TestCase):
             self.team, query_team_id=123456789, as_json=False
         )
         self.assertEqual(response.status_code, 200)
-
-
-class TestClickUpGETAuthorizedUserRequests(unittest.TestCase):
-    """Tests for get_authorized_user method of ClickUpGETMethods class."""
-
-    @classmethod
-    def setUpClass(cls):
-        cls.token = os.environ.get("CLICKUP_MY_TOKEN")
-        cls.instance = ClickUpGETMethods(cls.token)
-
-    def test_get_authorized_user_returns_200(self):
-        response = self.instance.get_authorized_user(as_json=False)
-        self.assertEqual(response.status_code, 200)
-
-    def test_get_authorized_user_invalid_token_returns_401(self):
-        response = self.instance.get_authorized_user(
-            as_json=False, token="TokenRandomCode123"
-        )
-        self.assertEqual(response.status_code, 401)
-
-    def test_get_authorized_user_returns_json_dict(self):
-        response = self.instance.get_authorized_user(as_json=True)
-        self.assertIsInstance(response, dict)
-
-    def test_get_authorized_user_returns_response_object(self):
-        response = self.instance.get_authorized_user(as_json=False)
-        self.assertIsInstance(response, requests.models.Response)
 
 
 class TestClickUpGETTaskCommentsRequests(unittest.TestCase):

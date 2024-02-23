@@ -20,6 +20,31 @@ class ClickUpGETMethods(ClickUpAPI):
     # def __init__(self, token: str, api_url: str | None = None) -> None:
     #     super().__init__(token, api_url)
 
+
+    def get_authorized_user(
+        self, as_json: bool = True, token: str | None = None
+    ) -> dict | requests.Response:
+        """
+        Execute GET request to view the details of the authenticated user's ClickUp account.
+        More info: https://clickup.com/api/clickupreference/operation/GetAuthorizedUser/
+
+        Args:
+            as_json (bool, optional):
+                If True, returns response as a JSON type. Defaults to True.
+            token (str | None, optional):
+                Token for request authentication. If None, uses token of an instance.
+                Defaults to None.
+        Returns:
+            dict | Any:
+                Returns response either as a class 'requests.models.Response' or
+                as a JSON dictionary.
+        """
+
+        url = self.api_url + "user/"
+
+        response = requests.get(url, headers=self.header(token=token))
+        return response.json() if as_json else response
+
     def get_authorized_teams_workspaces(
         self, as_json: bool = True, token: str | None = None
     ) -> dict | requests.Response:
@@ -104,6 +129,31 @@ class ClickUpGETMethods(ClickUpAPI):
         response = requests.get(url, headers=self.header(token=token))
         return response.json() if as_json else response
 
+    def get_space(
+        self, space_id: int, as_json: bool = True, token: str | None = None
+    ) -> dict | requests.Response:
+        """
+        Execute GET request to view the Spaces available in a Workspace.
+        More info: https://clickup.com/api/clickupreference/operation/GetSpace/
+
+        Args:
+            space_id (int)
+            as_json (bool, optional):
+                If True, returns response as a JSON type. Defaults to True.
+            token (str | None, optional):
+                Token for request authentication. If None, uses token of an instance.
+                Defaults to None.
+        Returns:
+            dict | Any:
+                Returns response either as a class 'requests.models.Response' or
+                as a JSON dictionary.
+        """
+
+        url = self.api_url + "space/" + str(space_id)
+
+        response = requests.get(url, headers=self.header(token=token))
+        return response.json() if as_json else response
+
     def get_folders(
         self,
         space_id: int,
@@ -116,8 +166,7 @@ class ClickUpGETMethods(ClickUpAPI):
         More info: https://clickup.com/api/clickupreference/operation/GetFolders/
 
         Args:
-            space_id (int):
-                ID of a Space.
+            space_id (int)
             archived (bool, optional):
                 If True, returns response of archived data. Defaults to False
             as_json (bool, optional):
@@ -140,6 +189,34 @@ class ClickUpGETMethods(ClickUpAPI):
         response = requests.get(url, headers=self.header(token=token), params=query)
         return response.json() if as_json else response
 
+    def get_folder(
+        self,
+        folder_id: int,
+        as_json: bool = True,
+        token: str | None = None,
+    ) -> dict | requests.Response:
+        """
+        Execute GET request to view the Lists within a Folder.
+        More info: https://clickup.com/api/clickupreference/operation/GetFolder/
+
+        Args:
+            folder_id (int)
+            as_json (bool, optional):
+                If True, returns response as a JSON type. Defaults to True.
+            token (str | None, optional):
+                Token for request authentication. If None, uses token of an instance.
+                Defaults to None.
+        Returns:
+            dict | Any:
+                Returns response either as a class 'requests.models.Response' or
+                as a JSON dictionary.
+        """
+
+        url = self.api_url + "folder/" + str(folder_id)
+
+        response = requests.get(url, headers=self.header(token=token))
+        return response.json() if as_json else response
+
     def get_lists(
         self,
         folder_id: int,
@@ -148,7 +225,7 @@ class ClickUpGETMethods(ClickUpAPI):
         token: str | None = None,
     ) -> dict | requests.Response:
         """
-        Execute GET request to view Lists wuthin a Folder.
+        Execute GET request to view Lists within a Folder.
         More info: https://clickup.com/api/clickupreference/operation/GetLists/
 
         Args:
@@ -168,6 +245,69 @@ class ClickUpGETMethods(ClickUpAPI):
         """
 
         url = self.api_url + "folder/" + str(folder_id) + "/list"
+
+        query = {
+            "archived": "true" if archived else "false",
+        }
+
+        response = requests.get(url, headers=self.header(token=token), params=query)
+        return response.json() if as_json else response
+
+    def get_list(
+        self,
+        list_id: int,
+        as_json: bool = True,
+        token: str | None = None,
+    ) -> dict | requests.Response:
+        """
+        Execute GET request to view information about a List.
+        More info: https://clickup.com/api/clickupreference/operation/GetList/
+
+        Args:
+            list_id (int)
+            as_json (bool, optional):
+                If True, returns response as a JSON type. Defaults to True.
+            token (str | None, optional):
+                Token for request authentication. If None, uses token of an instance.
+                Defaults to None.
+        Returns:
+            dict | Any:
+                Returns response either as a class 'requests.models.Response' or
+                as a JSON dictionary.
+        """
+
+        url = self.api_url + "list/" + str(list_id)
+
+        response = requests.get(url, headers=self.header(token=token))
+        return response.json() if as_json else response
+
+    def get_folderless_lists(
+        self,
+        space_id: int,
+        archived: bool = False,
+        as_json: bool = True,
+        token: str | None = None,
+    ) -> dict | requests.Response:
+        """
+        Execute GET request to view the Lists in a Space that aren't located in a Folder.
+        More info: https://clickup.com/api/clickupreference/operation/GetFolderlessLists/
+
+        Args:
+            space_id (int)
+            archived (bool, optional):
+                If True, returns response of archived data. Defaults to False.
+            as_json (bool, optional):
+                If True, returns response as a JSON type. Defaults to True.
+            token (str | None, optional):
+                Token for request authentication. If None, uses token of an instance.
+                Defaults to None.
+        Returns:
+            dict | Any:
+                Returns response either as a class 'requests.models.Response' or
+                as a JSON dictionary.
+        """
+
+        url = self.api_url + "space/" + str(space_id) + "/list"
 
         query = {
             "archived": "true" if archived else "false",
@@ -629,30 +769,6 @@ class ClickUpGETMethods(ClickUpAPI):
         )
         return response.json() if as_json else response
 
-    def get_authorized_user(
-        self, as_json: bool = True, token: str | None = None
-    ) -> dict | requests.Response:
-        """
-        Execute GET request to view the details of the authenticated user's ClickUp account.
-        More info: https://clickup.com/api/clickupreference/operation/GetAuthorizedUser/
-
-        Args:
-            as_json (bool, optional):
-                If True, returns response as a JSON type. Defaults to True.
-            token (str | None, optional):
-                Token for request authentication. If None, uses token of an instance.
-                Defaults to None.
-        Returns:
-            dict | Any:
-                Returns response either as a class 'requests.models.Response' or
-                as a JSON dictionary.
-        """
-
-        url = self.api_url + "user/"
-
-        response = requests.get(url, headers=self.header(token=token))
-        return response.json() if as_json else response
-
     def get_task_comments(
         self,
         task_id: str,
@@ -871,3 +987,4 @@ class ClickUpGETMethods(ClickUpAPI):
             url, headers=self.header(content_type="application/json", token=token)
         )
         return response.json() if as_json else response
+

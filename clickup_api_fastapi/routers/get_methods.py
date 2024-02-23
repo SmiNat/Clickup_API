@@ -4,8 +4,11 @@ from typing import Annotated
 import requests
 from fastapi import APIRouter, Query
 
-from clickup_api.handlers import (date_as_string_to_unix_time_in_milliseconds,
-                                  split_int_array, split_string_array)
+from clickup_api.handlers import (
+    date_as_string_to_unix_time_in_milliseconds,
+    split_int_array,
+    split_string_array,
+)
 from clickup_api_fastapi.enums import Static
 
 # uvicorn clickup_api_fastapi.main:app --reload
@@ -32,10 +35,12 @@ async def get_authorized_teams_workspaces():
 
 @router.get("/group")
 async def get_teams(
-    team_id: Annotated[int | None,
-                       Query(description="Refers to the id of a Workspace.")] = None,
-    group_ids: Annotated[str | None,
-                         Query(description="Refers to the id of a user group.")] = None
+    team_id: Annotated[
+        int | None, Query(description="Refers to the id of a Workspace.")
+    ] = None,
+    group_ids: Annotated[
+        str | None, Query(description="Refers to the id of a user group.")
+    ] = None,
 ):
     """This endpoint is used to view Teams: user groups in your Workspace."""
 
@@ -199,7 +204,8 @@ async def get_tasks(
     """Responses are limited to 100 tasks per page.
     You can only view task information of tasks you can access.
     This endpoint only includes tasks where the specified list_id is their home List.
-    Tasks added to the list_id with a different home List are not included in the response."""
+    Tasks added to the list_id with a different home List are not included in the response.
+    """
 
     url = f"{URL}/list/{str(list_id)}/task"
 
@@ -350,9 +356,8 @@ async def get_task_comments(
         ),
     ] = None,
     start_id: Annotated[
-        str | None,
-        Query(description="Enter the Comment id of a task comment")
-    ] = None
+        str | None, Query(description="Enter the Comment id of a task comment")
+    ] = None,
 ):
     """If you do not include the start and start_id parameters, this endpoint will
     return the most recent 25 comments. Use the start and start id parameters of the
@@ -385,9 +390,8 @@ async def get_list_comments(
         ),
     ] = None,
     start_id: Annotated[
-        str | None,
-        Query(description="Enter the Comment id of a task comment")
-    ] = None
+        str | None, Query(description="Enter the Comment id of a task comment")
+    ] = None,
 ):
     """If you do not include the start and start_id parameters, this endpoint will
     return the most recent 25 comments. Use the start and start id parameters of the
@@ -416,9 +420,8 @@ async def get_chat_view_comments(
         ),
     ] = None,
     start_id: Annotated[
-        str | None,
-        Query(description="Enter the Comment id of a task comment")
-    ] = None
+        str | None, Query(description="Enter the Comment id of a task comment")
+    ] = None,
 ):
     """If you do not include the start and start_id parameters, this endpoint will
     return the most recent 25 comments. Use the start and start id parameters of the

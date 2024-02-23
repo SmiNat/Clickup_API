@@ -5,9 +5,12 @@ import datetime
 import requests
 from dotenv import load_dotenv
 
-from clickup_api.handlers import (check_and_adjust_list_length, check_boolean,
-                                  check_integer_list,
-                                  datetime_to_unix_time_in_milliseconds)
+from clickup_api.handlers import (
+    check_and_adjust_list_length,
+    check_boolean,
+    check_integer_list,
+    datetime_to_unix_time_in_milliseconds,
+)
 
 from .main import ClickUpAPI
 
@@ -19,7 +22,6 @@ class ClickUpGETMethods(ClickUpAPI):
 
     # def __init__(self, token: str, api_url: str | None = None) -> None:
     #     super().__init__(token, api_url)
-
 
     def get_authorized_user(
         self, as_json: bool = True, token: str | None = None
@@ -987,4 +989,3 @@ class ClickUpGETMethods(ClickUpAPI):
             url, headers=self.header(content_type="application/json", token=token)
         )
         return response.json() if as_json else response
-

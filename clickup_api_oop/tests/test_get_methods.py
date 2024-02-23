@@ -374,7 +374,9 @@ class TestClickUpGETFolderlessListsRequests(unittest.TestCase):
         cls.space = os.environ.get("CLICKUP_SPACE_ID_MQUBE")
 
     def test_get_folderless_lists_with_required_space_id_returns_200(self):
-        response = self.instance.get_folderless_lists(space_id=self.space, as_json=False)
+        response = self.instance.get_folderless_lists(
+            space_id=self.space, as_json=False
+        )
         self.assertEqual(response.status_code, 200)
 
     def test_get_folderless_lists_without_space_id_returns_400(self):
@@ -382,7 +384,9 @@ class TestClickUpGETFolderlessListsRequests(unittest.TestCase):
         self.assertEqual(response.status_code, 400)
 
     def test_get_folderless_lists_with_invalid_space_id_returns_400(self):
-        response = self.instance.get_folderless_lists(space_id="invalid10", as_json=False)
+        response = self.instance.get_folderless_lists(
+            space_id="invalid10", as_json=False
+        )
         self.assertEqual(response.status_code, 400)
 
     def test_get_folderless_lists_with_invalid_space_id_returns_401(self):
@@ -400,7 +404,9 @@ class TestClickUpGETFolderlessListsRequests(unittest.TestCase):
         self.assertIsInstance(response, dict)
 
     def test_get_folderless_lists_returns_response_object(self):
-        response = self.instance.get_folderless_lists(space_id=self.space, as_json=False)
+        response = self.instance.get_folderless_lists(
+            space_id=self.space, as_json=False
+        )
         self.assertIsInstance(response, requests.models.Response)
 
     def test_get_folderless_lists_with_archived_returns_200(self):

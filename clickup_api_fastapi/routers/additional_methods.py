@@ -6,7 +6,9 @@ from starlette import status
 
 from clickup_api.handlers import split_int_array
 from clickup_api_fastapi.routers.get_methods import (
-    get_authorized_teams_workspaces, get_time_entries)
+    get_authorized_teams_workspaces,
+    get_time_entries,
+)
 
 router = APIRouter(tags=["new methods"])
 

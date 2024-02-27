@@ -6,7 +6,9 @@ from starlette import status
 
 from clickup_api.handlers import split_int_array
 from clickup_api_fastapi.routers.get_methods import (
-    get_authorized_teams_workspaces, get_time_entries)
+    get_authorized_teams_workspaces,
+    get_time_entries,
+)
 
 router = APIRouter(tags=["new methods"])
 
@@ -176,15 +178,15 @@ async def user_tasks(
     # cleaning team_id of trailing commas and spaces
     if team_id:
         team_id = [team_id[0].strip().strip(",")]
-    # converting string with numbers into list of integers
-    if "," in team_id[0]:
-        try:
-            team_id = split_int_array(team_id)
-        except ValueError:
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail="'team_id' must contain numbers separated by commas.",
-            )
+        # converting string with numbers into list of integers
+        if "," in team_id[0]:
+            try:
+                team_id = split_int_array(team_id)
+            except ValueError:
+                raise HTTPException(
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                    detail="'team_id' must contain numbers separated by commas.",
+                )
     workspaces_ids = await request_workspace_ids(team_id=team_id)
 
     # for filtering by username and surname instead of user_id:

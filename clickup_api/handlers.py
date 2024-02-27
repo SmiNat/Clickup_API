@@ -3,7 +3,8 @@ import random
 import string
 from urllib.parse import urlparse
 
-from .exceptions import DateSequenceError, DateTypeError, DateValueError
+from .exceptions import (DateSequenceError, DateTypeError, DateValueError,
+                         TimeDurationError)
 
 
 def is_url(url: str) -> bool:
@@ -77,6 +78,24 @@ def date_as_string_to_unix_time_in_milliseconds(date: str) -> int:
             # print("🖥️ ", datetime_to_unix_time_in_milliseconds(string_to_int))
             return datetime_to_unix_time_in_milliseconds(string_to_int)
     return date
+
+
+def time_estimate_to_unix_time_in_milliseconds(time_estimate: list[int]) -> int:
+    """Converts duration of time of [days, hours, minutes] to unix time
+    in milliseconds."""
+    if time_estimate:
+        if isinstance(time_estimate, (list, tuple)) and len(time_estimate) == 3:
+            try:
+                time_estimate = datetime.timedelta(
+                    days=time_estimate[0],
+                    hours=time_estimate[1],
+                    minutes=time_estimate[2]).total_seconds()*1000
+                return time_estimate
+            except TypeError as error:
+                raise DateTypeError(error)
+        else:
+            raise TimeDurationError()
+    return time_estimate
 
 
 def check_and_adjust_list_length(data: list, append_number: bool = False) -> list:

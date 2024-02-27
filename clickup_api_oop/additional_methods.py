@@ -6,6 +6,7 @@ from typing import Any
 from dotenv import load_dotenv
 
 from .get_methods import ClickUpGETMethods
+from .post_methods import ClickUpPOSTMethods
 
 load_dotenv()
 
@@ -309,3 +310,99 @@ class ClickUpAdditionalMethods(ClickUpGETMethods):
         # print("✅ task_entry_ids:", task_entry_ids, "list length:", len(task_entry_ids))
 
         return user_tasks
+
+    def post_a_new_task(
+        self,
+        list_id: int,
+        task_name: str,
+        description: str | None = None,
+        parent: str | None = None,
+        assignees: list[int] | None = None,
+        tags: list[str] | None = None,
+        status: str | None  = None,
+        priority: int| None = None,
+        due_date: (
+            datetime.datetime | list[int, int, int] | tuple[int, int, int] | None
+        ) = None,
+        time_estimate: list[int, int, int] | tuple[int, int, int] | None = None,
+        start_date: (
+            datetime.datetime | list[int, int, int] | tuple[int, int, int] | None
+        ) = None,
+        notify_all: bool = False,
+        links_to: str | None = None,
+        checklist_name: str | None = None,
+        checklist_items: list[tuple[str, int]] | None = None,
+        token: str | None = None,
+    ) -> dict:
+        """
+        Post a new task (subtask) with checklist and checklist items.
+
+        Args:
+            list_id (int)
+            task_name (str)
+            description (str | None, optional): Task description. Defaults to None.
+            parent (str | None, optional): You can create a subtask by including
+                an existing task ID. The parent task ID you include cannot be
+                a subtask, and must be in the same List specified in the path parameter.
+                Defaults to None.
+            assignees (list[int] | None, optional): Task Assignees. Defaults to None.
+            tags (list[str] | None, optional): Task tags. Defaults to None.
+            status (str | None, optional): Task status. Defaults to None.
+            priority (int | None, optional): Task priority. Defaults to None.
+            due_date (datetime.datetime | list[int] | tuple[int] | None, optional):
+                Use datetime.datetime() to set a due_date.
+                Alternatively type due_date as a list or a tuple of integer values
+                in the following order: (year, month, day[, hour, minute, second]).
+                Defaults to None.
+            time_estimate (list[int, int, int] | tuple[int, int, int] | None = None,
+                optional): Estimated time for a task. Use number of days, hours, minutes.
+                Defaults to None.
+            start_date (datetime.datetime | list[int] | tuple[int] | None, optional):
+                Use datetime.datetime() to set a start_date.
+                Alternatively type start_date as a list or a tuple of integer values
+                in the following order: (year, month, day[, hour, minute, second]).
+                Defaults to None.
+            notify_all (bool): Defaults to False.
+            links_to (str | None, optional): Include a task ID to create a linked
+                dependency with your new task.
+            checklist_name (str | None, optional): Required if checklist_items is
+                not None. Defaults to None.
+            checklist_items (list[tuple[str, int]] | None, optional): List of a
+                checklist items provided as a tuples of (name, assignee_id) pairs.
+                First element of tuple is checklist item name (required), second element
+                of tuple is id of assignee (optional).
+            as_json (bool): If True, returns response as a JSON type. Defaults to True.
+            token (str | None, optional):
+                Token for request authentication. If None, uses token of an instance.
+                Defaults to None.
+        Returns:
+            dict | Any:
+                Returns response either as a class 'requests.models.Response' or
+                as a JSON dictionary.
+        """
+
+        task = ClickUpPOSTMethods.create_task(
+            self, list_id=list_id, name=task_name, description=description,
+            parent=parent, assignees=assignees, tags=tags, status=status,
+            priority=priority, due_date=due_date, time_estimate=time_estimate,
+            start_date=start_date, notify_all=notify_all, links_to=links_to, token=token)
+
+        if checklist_name:
+            checklist = ClickUpPOSTMethods.create_checklist(
+                self, task_id=task["id"], name=checklist_name, token=token)
+            checklist_id = checklist["checklist"]["id"]
+
+        if checklist_items:
+            if not checklist_name:
+                raise ValueError("'checklist_name' parameter is required to add checklist item.")
+            for element in checklist_items:
+                if len(element) == 2:
+                    ClickUpPOSTMethods.create_checklist_item(
+                        self, checklist_id=checklist_id, name=element[0],
+                        assignee=element[1], token=token)
+                else:
+                    ClickUpPOSTMethods.create_checklist_item(
+                        self, checklist_id=checklist_id, name=element, token=token)
+
+        return {"status_code": 201,
+                "detail": "Task/subtask with checklist was successfully created."}

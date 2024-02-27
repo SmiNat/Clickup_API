@@ -31,7 +31,7 @@ https://clickup.com/api/developer-portal/authentication/
 
 ![Postman - token use](clickup_api_screenshots/token_postman.png)
 
-### ClickUpAPI Class(OOP)
+### ClickUpAPI Class (OOP)
 
 Using ClickUp API via Python class ClickUpAPI requires token as an authentication key.
 There are two ways of using token credentials in ClickUpAPI class:
@@ -104,6 +104,10 @@ To start a FastAPI based on ClickUp API use commend:
     ECODE           Status  Message/meaning
     ACCESS_083      401     Not found / You do not have access to this task.
     ACCESS_190      404     Not found.
+    CHECK_012       500     Internal server error
+    CHECK_028       400     Assignee must have access to checklist item - requires
+                            Assignee id or None as a assignee parameter.
+    CRTSK_001       400     Status not found.
     GROUP_HELPERS_001  500  Invalid input syntax for type uuid. Check ID for field value.
     INPUT_002/03    400     Invalid ID.
     ITEM_155        400     Field must be a json parsable string (array of strings).
@@ -111,6 +115,8 @@ To start a FastAPI based on ClickUp API use commend:
     ITEMV2_003      500     Internal server error - can be caused by incorrect data type or
                             incorrect value (eg. 'order by' non-existing type name or typing
                             string instead of a list or an integer).
+    JSON_001        400     Unexpected token n in JSON at position 0 - usually due to the lack
+                            of one of required parameters
     LOC_008         400     Unsupported Entity - probably caused by using token with not high
                             enough credentials. Try to use token with higher access or narrow down
                             request by using query parameters.
@@ -123,6 +129,8 @@ To start a FastAPI based on ClickUp API use commend:
                             required (empty string as a second element can solve the issue in case
                             of filtering by only one element in list/tuple).
     OAUTH_064       400     View must be a conversation / invalid view ID.
+    OAUTH_095       400     Invalid input syntax for type uuid: "None" - usually due to the lack
+                            of one of required parameters.
     PAGE_047        400     Must be a task view / invalid view ID.
     PUBAPITASK_008  400     Custom items must be an arra - also appears if list containsonly
                             one element. Add second element to solve the isssue. Second element

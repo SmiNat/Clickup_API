@@ -6,7 +6,7 @@ from typing import Any
 from dotenv import load_dotenv
 
 from .get_methods import ClickUpGETMethods
-from .post_methods import ClickUpPOSTMethods
+from .post_put_methods import ClickUpPOSTMethods
 
 load_dotenv()
 

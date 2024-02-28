@@ -130,9 +130,9 @@ async def get_tasks(
     due_date_gt: Annotated[
         str | None,
         Query(
-            description="Date in sequence: Year, Month, Day. \
-            Use integers for date parameters. Use comma to separate parameters. \
-                Example: 2024, 5, 15"
+            description="Date in sequence: Year, Month, Day. "
+            "Use integers for date parameters. Use comma to separate parameters. "
+            "Example: 2024, 5, 15."
         ),
     ] = None,
     due_date_lt: Annotated[
@@ -140,7 +140,7 @@ async def get_tasks(
         Query(
             description="Date in sequence: Year, Month, Day. \
             Use integers for date parameters. Use comma to separate parameters. \
-                Example: 2024, 5, 15"
+            Example: 2024, 5, 15."
         ),
     ] = None,
     date_created_gt: Annotated[
@@ -148,7 +148,7 @@ async def get_tasks(
         Query(
             description="Date in sequence: Year, Month, Day. \
             Use integers for date parameters. Use comma to separate parameters. \
-                Example: 2024, 5, 15"
+            Example: 2024, 5, 15."
         ),
     ] = None,
     date_created_lt: Annotated[
@@ -156,7 +156,7 @@ async def get_tasks(
         Query(
             description="Date in sequence: Year, Month, Day. \
             Use integers for date parameters. Use comma to separate parameters. \
-                Example: 2024, 5, 15"
+            Example: 2024, 5, 15."
         ),
     ] = None,
     date_updated_gt: Annotated[
@@ -164,7 +164,7 @@ async def get_tasks(
         Query(
             description="Date in sequence: Year, Month, Day. \
             Use integers for date parameters. Use comma to separate parameters. \
-                Example: 2024, 5, 15"
+            Example: 2024, 5, 15."
         ),
     ] = None,
     date_updated_lt: Annotated[
@@ -172,7 +172,7 @@ async def get_tasks(
         Query(
             description="Date in sequence: Year, Month, Day. \
             Use integers for date parameters. Use comma to separate parameters. \
-                Example: 2024, 5, 15"
+            Example: 2024, 5, 15."
         ),
     ] = None,
     date_done_gt: Annotated[
@@ -180,7 +180,7 @@ async def get_tasks(
         Query(
             description="Date in sequence: Year, Month, Day. \
             Use integers for date parameters. Use comma to separate parameters. \
-                Example: 2024, 5, 15"
+            Example: 2024, 5, 15."
         ),
     ] = None,
     date_done_lt: Annotated[
@@ -188,7 +188,7 @@ async def get_tasks(
         Query(
             description="Date in sequence: Year, Month, Day. \
             Use integers for date parameters. Use comma to separate parameters. \
-                Example: 2024, 5, 15"
+            Example: 2024, 5, 15."
         ),
     ] = None,
     # custom_fields: list[str] | None = None,  # NotImplemented
@@ -197,7 +197,7 @@ async def get_tasks(
         Query(
             description="Filter by custom task types. Use comma to separate items.\
             Including 0 returns tasks. Including 1 returns Milestones. Including any \
-                other number returns the custom task type as defined in your Workspace."
+            other number returns the custom task type as defined in your Workspace."
         ),
     ] = None,
 ):

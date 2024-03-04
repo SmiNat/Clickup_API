@@ -6,9 +6,10 @@ from clickup_api.handlers import (
     time_estimate_to_unix_time_in_milliseconds, check_boolean
     )
 from .main import ClickUpAPI
+from .get_methods import ClickUpGETMethods
 
 
-class ClickUpPOSTMethods(ClickUpAPI):
+class ClickUpPOSTMethods(ClickUpGETMethods):
 
     def create_task(
         self,
@@ -399,8 +400,10 @@ class ClickUpPOSTMethods(ClickUpAPI):
         self,
         checklist_id: str,
         checklist_item_id: str,
+        task_id: str,
         name: str | None = None,
         assignee: int | None = None,
+        remove_assignee: bool = False,
         resolved: bool = False,
         parent: str | None = None,
         as_json: bool = True,
@@ -415,10 +418,13 @@ class ClickUpPOSTMethods(ClickUpAPI):
         Args:
             checklist_id (str)
             checklist_item_id (str)
+            task_id (str)
             name (str | None, optional): New checklist item name. Defaults to None.
             assignee (int | None, optional): New checklist item Assignee id.
-                Defaults to None. Note: if None, removes previous Assignee.
-            resolver (bool): Defaults to False.
+                Defaults to None. Note: if None, makes no changes in Assignee id.
+            remove_assignee (bool): To remove Assignee from an item and leave it empty.
+                Defaults to False. Note: always False if assignee is not None.
+            resolved (bool): Defaults to False.
             parent (str | None, optional): To nest a checklist item under another
                 checklist item, include the other item's checklist_item_id.
                 Defaults to None.
@@ -435,9 +441,23 @@ class ClickUpPOSTMethods(ClickUpAPI):
         url = str(self.api_url + "checklist/" + str(checklist_id)
                   + "/checklist_item/" + str(checklist_item_id))
 
+        remove_assignee = False if assignee else remove_assignee
+
+        if not name or not assignee:
+            task = self.get_task(task_id)
+            for checklist in task["checklists"]:
+                if checklist["id"] == checklist_id:
+                    task_checklist = checklist
+                    break
+            for item in task_checklist["items"]:
+                if item["id"] == checklist_item_id:
+                    name = item["name"] if not name else name
+                    assignee = item["assignee"]["id"] if not assignee else assignee
+                    break
+
         payload = {
             "name": name,
-            "assignee": assignee,
+            "assignee": assignee if not remove_assignee else None,
             "resolved": "true" if check_boolean(resolved) else "false",
             "parent": parent
         }

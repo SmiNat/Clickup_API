@@ -1,16 +1,33 @@
 import datetime
 from typing import Annotated, Any
+from pydantic import BaseModel
 
 from fastapi import APIRouter, HTTPException, Query
+from fastapi.encoders import jsonable_encoder
 from starlette import status
 
 from clickup_api.handlers import split_int_array
 from clickup_api_fastapi.routers.get_methods import (
     get_authorized_teams_workspaces,
     get_time_entries,
-)
+    get_task
+    )
+from .post_put_methods import (
+    CreateChecklist, CreateChecklistItem, CreateTaskFullRequest,
+    create_task, create_checklist, create_checklist_item,
+    )
+
 
 router = APIRouter(tags=["new methods"])
+
+
+class Checklists(CreateChecklist):
+    items: list[CreateChecklistItem | None] | None
+
+
+class Task(BaseModel):
+    task: CreateTaskFullRequest
+    checklists: list[Checklists]
 
 
 async def request_workspace_ids(team_id: Any | None = None) -> list | tuple:
@@ -90,17 +107,17 @@ async def user_worktime(
     start_date: Annotated[
         str | None,
         Query(
-            description="Date in sequence: Year, Month, Day. \
-            Use integers for date parameters. Use comma to separate parameters. \
-                Example: 2024, 5, 15"
+            description="Date in sequence: Year, Month, Day. "
+            "Use integers for date parameters. Use comma to separate parameters. "
+            "Example: 2024, 5, 15"
         ),
     ] = None,
     end_date: Annotated[
         str | None,
         Query(
-            description="Date in sequence: Year, Month, Day. \
-            Use integers for date parameters. Use comma to separate parameters. \
-                Example: 2024, 5, 15"
+            description="Date in sequence: Year, Month, Day. "
+            "Use integers for date parameters. Use comma to separate parameters. "
+            "Example: 2024, 5, 15"
         ),
     ] = None,
     assignee: Annotated[
@@ -109,7 +126,7 @@ async def user_worktime(
     ] = None,
     team_id: Annotated[list[int] | None, Query()] = None,
     only_billable: bool = False,
-):
+) -> dict:
     workspaces = await request_workspace_ids(team_id=team_id)
 
     time_entry_responses = await request_time_entries_for_workspace_ids(
@@ -151,29 +168,29 @@ async def user_tasks(
     start_date: Annotated[
         str | None,
         Query(
-            description="Date in sequence: Year, Month, Day. \
-            Use integers for date parameters. Use comma to separate parameters. \
-                Example: 2024, 5, 15"
+            description="Date in sequence: Year, Month, Day. "
+            "Use integers for date parameters. Use comma to separate parameters. "
+            "Example: 2024, 5, 15"
         ),
     ] = None,
     end_date: Annotated[
         str | None,
         Query(
-            description="Date in sequence: Year, Month, Day. \
-            Use integers for date parameters. Use comma to separate parameters. \
-                Example: 2024, 5, 15"
+            description="Date in sequence: Year, Month, Day. "
+            "Use integers for date parameters. Use comma to separate parameters. "
+            "Example: 2024, 5, 15"
         ),
     ] = None,
     team_id: Annotated[
         list[int | str] | None,
         Query(
-            description="Team ID (Workspace). Note: one user may be assigned to more \
-                than one team. To receive tasks from multiple workspaces, use comma to \
-                    separate team IDs. If None, includes all teams available for \
-                        token owner. Defaults to None."
+            description="Team ID (Workspace). Note: one user may be assigned to more "
+            "than one team. To receive tasks from multiple workspaces, use comma to "
+            "separate team IDs. If None, includes all teams available for token owner. "
+            "Defaults to None."
         ),
     ] = None,
-):
+) -> dict:
 
     # cleaning team_id of trailing commas and spaces
     if team_id:
@@ -217,7 +234,8 @@ async def user_tasks(
         custom_task_ids=True,
     )
 
-    # all unique tasks by ids (one task can appear many times depending on the number of times tracked):
+    # all unique tasks by ids (one task can appear many times depending on the number
+    # of times tracked):
     task_ids = []
     # all time tracked ids for all tasks (each time track has its own id):
     task_entry_ids = []
@@ -234,7 +252,8 @@ async def user_tasks(
         # accessing response data from request made on get_time_entries on each workspace:
         if response["data"]:
             for task in response["data"]:
-                # increasing time duration for existing task in user_tasks dict (task with multiple time entrances):
+                # increasing time duration for existing task in user_tasks dict
+                # (task with multiple time entrances):
                 if task["task"]["id"] in task_ids:
                     for element in user_tasks["tasks"]:
                         if task["task"]["id"] == element["task_id"]:
@@ -278,3 +297,47 @@ async def user_tasks(
     # print("✅ task_entry_ids:", task_entry_ids, "list length:", len(task_entry_ids))
 
     return user_tasks
+
+@router.post("/additional/add/task_comprehensive", status_code=status.HTTP_201_CREATED)
+async def create_task_with_checklist_items(
+    list_id: str,
+    task: Task,
+    custom_task_ids: bool = False,
+    team_id: int | None = None,
+):
+
+    # print("✅ task: ", task)
+    # print("✅ task_encoded: ", jsonable_encoder(task))
+
+    new_task = await create_task(
+        list_id,
+        task=jsonable_encoder(task)["task"],
+        custom_task_ids=custom_task_ids,
+        team_id=team_id
+        )
+
+    # print("✅ new_task: ", new_task)
+    task_id = new_task["id"]
+
+    for checklist in jsonable_encoder(task)["checklists"]:
+        # print("✅ checklist: ", checklist)
+        # print("✅ checklist name: ", checklist["name"])
+
+        new_checklist = await create_checklist(
+            task_id,
+            name={"name": checklist["name"]},
+            custom_task_ids=custom_task_ids,
+            team_id=team_id
+        )
+        # print("✅ new_checklist: ", new_checklist)
+
+        checklist_id = new_checklist["checklist"]["id"]
+
+        for item in checklist["items"]:
+
+            new_item = await create_checklist_item(checklist_id, item)
+            # print("✅ new_item: ", new_item)
+
+
+    return await get_task(task_id)
+    # return task.model_dump_json()

@@ -138,66 +138,66 @@ async def get_tasks(
     due_date_lt: Annotated[
         str | None,
         Query(
-            description="Date in sequence: Year, Month, Day. \
-            Use integers for date parameters. Use comma to separate parameters. \
-            Example: 2024, 5, 15."
+            description="Date in sequence: Year, Month, Day. "
+            "Use integers for date parameters. Use comma to separate parameters. "
+            "Example: 2024, 5, 15."
         ),
     ] = None,
     date_created_gt: Annotated[
         str | None,
         Query(
-            description="Date in sequence: Year, Month, Day. \
-            Use integers for date parameters. Use comma to separate parameters. \
-            Example: 2024, 5, 15."
+            description="Date in sequence: Year, Month, Day. "
+            "Use integers for date parameters. Use comma to separate parameters. "
+            "Example: 2024, 5, 15."
         ),
     ] = None,
     date_created_lt: Annotated[
         str | None,
         Query(
-            description="Date in sequence: Year, Month, Day. \
-            Use integers for date parameters. Use comma to separate parameters. \
-            Example: 2024, 5, 15."
+            description="Date in sequence: Year, Month, Day. "
+            "Use integers for date parameters. Use comma to separate parameters. "
+            "Example: 2024, 5, 15."
         ),
     ] = None,
     date_updated_gt: Annotated[
         str | None,
         Query(
-            description="Date in sequence: Year, Month, Day. \
-            Use integers for date parameters. Use comma to separate parameters. \
-            Example: 2024, 5, 15."
+            description="Date in sequence: Year, Month, Day. "
+            "Use integers for date parameters. Use comma to separate parameters. "
+            "Example: 2024, 5, 15."
         ),
     ] = None,
     date_updated_lt: Annotated[
         str | None,
         Query(
-            description="Date in sequence: Year, Month, Day. \
-            Use integers for date parameters. Use comma to separate parameters. \
-            Example: 2024, 5, 15."
+            description="Date in sequence: Year, Month, Day. "
+            "Use integers for date parameters. Use comma to separate parameters. "
+            "Example: 2024, 5, 15."
         ),
     ] = None,
     date_done_gt: Annotated[
         str | None,
         Query(
-            description="Date in sequence: Year, Month, Day. \
-            Use integers for date parameters. Use comma to separate parameters. \
-            Example: 2024, 5, 15."
+            description="Date in sequence: Year, Month, Day. "
+            "Use integers for date parameters. Use comma to separate parameters. "
+            "Example: 2024, 5, 15."
         ),
     ] = None,
     date_done_lt: Annotated[
         str | None,
         Query(
-            description="Date in sequence: Year, Month, Day. \
-            Use integers for date parameters. Use comma to separate parameters. \
-            Example: 2024, 5, 15."
+            description="Date in sequence: Year, Month, Day. "
+            "Use integers for date parameters. Use comma to separate parameters. "
+            "Example: 2024, 5, 15."
         ),
     ] = None,
     # custom_fields: list[str] | None = None,  # NotImplemented
     custom_items: Annotated[
         list[str] | None,
         Query(
-            description="Filter by custom task types. Use comma to separate items.\
-            Including 0 returns tasks. Including 1 returns Milestones. Including any \
-            other number returns the custom task type as defined in your Workspace."
+            description="Filter by custom task types. Use comma to separate items. "
+            "Including 0 returns tasks. Including 1 returns Milestones. Including any "
+            "other number returns the custom task type as defined in your Workspace."
         ),
     ] = None,
 ):
@@ -280,23 +280,24 @@ async def get_time_entries(
     start_date: Annotated[
         str | None,
         Query(
-            description="Date in sequence: Year, Month, Day. \
-            Use integers for date parameters. Use comma to separate parameters. \
-                Example: 2024, 5, 15. If None, equals to the beginning of the current month."
+            description="Date in sequence: Year, Month, Day. "
+            "Use integers for date parameters. Use comma to separate parameters. "
+            "Example: 2024, 5, 15. If None, equals to the beginning of the current month."
         ),
     ] = None,
     end_date: Annotated[
         str | None,
         Query(
-            description="Date in sequence: Year, Month, Day. \
-            Use integers for date parameters. Use comma to separate parameters. \
-                Example: 2024, 5, 15"
+            description="Date in sequence: Year, Month, Day. "
+            "Use integers for date parameters. Use comma to separate parameters. "
+            "Example: 2024, 5, 15"
         ),
     ] = None,
     assignee: Annotated[
         int | str | None,
         Query(
-            description="Filter by user_id. For multiple assignees, separate user_id using commas."
+            description="Filter by user_id. For multiple assignees, separate user_id "
+            "using commas."
         ),
     ] = None,
     include_task_tags: bool = False,
@@ -350,13 +351,13 @@ async def get_task_comments(
     start: Annotated[
         str | None,
         Query(
-            description="Date in sequence: Year, Month, Day. \
-            Use integers for date parameters. Use comma to separate parameters. \
-                Example: 2024, 5, 15."
+            description="Date in sequence: Year, Month, Day. "
+            "Use integers for date parameters. Use comma to separate parameters. "
+            "Example: 2024, 5, 15."
         ),
     ] = None,
     start_id: Annotated[
-        str | None, Query(description="Enter the Comment id of a task comment")
+        str | None, Query(description="Enter the Comment id of a task comment.")
     ] = None,
 ):
     """If you do not include the start and start_id parameters, this endpoint will
@@ -384,9 +385,9 @@ async def get_list_comments(
     start: Annotated[
         str | None,
         Query(
-            description="Date in sequence: Year, Month, Day. \
-            Use integers for date parameters. Use comma to separate parameters. \
-                Example: 2024, 5, 15."
+            description="Date in sequence: Year, Month, Day. "
+            "Use integers for date parameters. Use comma to separate parameters. "
+            "Example: 2024, 5, 15."
         ),
     ] = None,
     start_id: Annotated[
@@ -414,9 +415,9 @@ async def get_chat_view_comments(
     start: Annotated[
         str | None,
         Query(
-            description="Date in sequence: Year, Month, Day. \
-            Use integers for date parameters. Use comma to separate parameters. \
-                Example: 2024, 5, 15."
+            description="Date in sequence: Year, Month, Day. "
+            "Use integers for date parameters. Use comma to separate parameters. "
+            "Example: 2024, 5, 15."
         ),
     ] = None,
     start_id: Annotated[

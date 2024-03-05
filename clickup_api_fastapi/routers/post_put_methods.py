@@ -6,15 +6,15 @@ from starlette import status
 from typing import Annotated, Optional, Type
 
 from ..enums import Static
+from ..utils import header, validate_token
 from clickup_api.handlers import (
     date_as_dict_to_unix_time_in_milliseconds,
     time_as_dict_to_unix_time_in_milliseconds
     )
 from .get_methods import get_task
 
-router = APIRouter(tags=["post/put methods"])
+router = APIRouter(tags=["ClickUp post/put methods"])
 
-HEADER = {"Authorization": Static.TOKEN.value, "Content-Type": "application/json"}
 URL = Static.URL.value
 
 
@@ -61,7 +61,9 @@ class TaskBasicRequest(BaseModel):
 
 
 class CreateTaskFullRequest(TaskBasicRequest):
-    assignees: list[int | None] | None = Field(default=None, title="Assignees ids", examples=[[None]])
+    assignees: list[int | None] | None = Field(default=None,
+                                               title="Assignees ids",
+                                               examples=[[None]])
     tags: list[str] | None = Field(default=None, examples=[["bugs", "backend"]])
     notify_all: bool = False
     links_to: str | None = Field(default=None, examples=[None])
@@ -101,8 +103,6 @@ class CreateChecklistItem(BaseModel):
     assignee: int | None = Field(default=None, examples=[None])
 
 
-# class UpdateChecklistItem(CreateChecklistItem):
-#     name: Optional[str]
 class UpdateChecklistItem(BaseModel):
     name: str | None = Field(default=None, min_length=1)
     assignee: int | None = Field(default=None, examples=[None])
@@ -115,24 +115,24 @@ class UpdateChecklistItem(BaseModel):
                                "checklist_item_id.", examples=[None])
 
 
-
-
 @router.post("/list/{list_id}/task", status_code=status.HTTP_201_CREATED)
 async def create_task(
     list_id: int,
     task: CreateTaskFullRequest,
     custom_task_ids: bool = False,
     team_id: int | None = None,
+    token: str | None = None
 ):
+    validate_token(token)
     url = f"{URL}/list/{str(list_id)}/task"
 
     custom_task_ids = "true" if team_id or custom_task_ids else "false"
 
     query = {"custom_task_ids": custom_task_ids, "team_id": team_id}
 
-    print("✅ task: ", task)
+    # print("✅ task: ", task)
     update_task_encoded = jsonable_encoder(task)
-    print("✅ task json: ", update_task_encoded)
+    # print("✅ task json: ", update_task_encoded)
 
     if update_task_encoded["due_date"]:
         update_task_encoded["due_date"] = date_as_dict_to_unix_time_in_milliseconds(
@@ -144,11 +144,13 @@ async def create_task(
         update_task_encoded["time_estimate"] = time_as_dict_to_unix_time_in_milliseconds(
             update_task_encoded["time_estimate"])
 
-    print("✅ task json update: ", update_task_encoded)
+    # print("✅ task json update: ", update_task_encoded)
 
-    response = requests.post(url, headers=HEADER, params=query,
+    response = requests.post(url, headers=header(token), params=query,
                              json=update_task_encoded)
-    print("✅ task json: ", response.json())
+    # print("✅ task json: ", response.json())
+    if not response.status_code < 400:
+        raise HTTPException(response.status_code, response.json())
     return response.json()
 
 
@@ -158,7 +160,9 @@ async def edit_task(
     task: UpdateTaskFullRequest,
     custom_task_ids: bool = False,
     team_id: int | None = None,
+    token: str | None = None
 ):
+    validate_token(token)
     url = f"{URL}/task/{str(task_id)}"
 
     custom_task_ids = "true" if team_id or custom_task_ids else "false"
@@ -177,7 +181,9 @@ async def edit_task(
         update_task_encoded["time_estimate"] = time_as_dict_to_unix_time_in_milliseconds(
             update_task_encoded["time_estimate"])
 
-    response = requests.put(url, headers=HEADER, params=query, json=update_task_encoded)
+    response = requests.put(url, headers=header(token), params=query, json=update_task_encoded)
+    if not response.status_code < 400:
+        raise HTTPException(response.status_code, response.json())
     return response.json()
 
 
@@ -187,26 +193,34 @@ async def create_checklist(
     name: CreateChecklist,
     custom_task_ids: bool = False,
     team_id: int | None = None,
+    token: str | None = None
 ):
+    validate_token(token)
     url = f"{URL}/task/{str(task_id)}/checklist"
 
     custom_task_ids = "true" if team_id or custom_task_ids else "false"
 
     query = {"custom_task_ids": custom_task_ids,  "team_id": team_id}
 
-    response = requests.post(url, headers=HEADER, params=query,
+    response = requests.post(url, headers=header(token), params=query,
                              json=jsonable_encoder(name))
+    if not response.status_code < 400:
+        raise HTTPException(response.status_code, response.json())
     return response.json()
 
 
 @router.put("/checklist/{checklist_id}", status_code=status.HTTP_204_NO_CONTENT)
 async def edit_checklist(
     checklist_id: str,
-    name: UpdateChecklist
+    name: UpdateChecklist,
+    token: str | None = None
 ):
+    validate_token(token)
     url = f"{URL}/checklist/{str(checklist_id)}"
 
-    response = requests.put(url, headers=HEADER, json=jsonable_encoder(name))
+    response = requests.put(url, headers=header(token), json=jsonable_encoder(name))
+    if not response.status_code < 400:
+        raise HTTPException(response.status_code, response.json())
     return response.json()
 
 
@@ -215,10 +229,14 @@ async def edit_checklist(
 async def create_checklist_item(
     checklist_id: str,
     item: CreateChecklistItem,
+    token: str | None = None
 ):
+    validate_token(token)
     url = f"{URL}/checklist/{str(checklist_id)}/checklist_item"
 
-    response = requests.post(url, headers=HEADER, json=jsonable_encoder(item))
+    response = requests.post(url, headers=header(token), json=jsonable_encoder(item))
+    if not response.status_code < 400:
+        raise HTTPException(response.status_code, response.json())
     return response.json()
 
 
@@ -228,8 +246,10 @@ async def edit_checklist_item(
     checklist_id: str,
     checklist_item_id: str,
     task_id: str,
-    item: UpdateChecklistItem
+    item: UpdateChecklistItem,
+    token: str | None = None
 ):
+    validate_token(token)
     url = f"{URL}/checklist/{str(checklist_id)}/checklist_item/{str(checklist_item_id)}"
 
     item_encoded = jsonable_encoder(item)
@@ -256,5 +276,7 @@ async def edit_checklist_item(
 
     # print("✅ item updated", item_encoded)
 
-    response = requests.put(url, headers=HEADER, json=item_encoded)
+    response = requests.put(url, headers=header(token), json=item_encoded)
+    if not response.status_code < 400:
+        raise HTTPException(response.status_code, response.json())
     return response.json()

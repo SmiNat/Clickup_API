@@ -120,7 +120,8 @@ To start a FastAPI based on ClickUp API use commend:
     LOC_008         400     Unsupported Entity - probably caused by using token with not high
                             enough credentials. Try to use token with higher access or narrow down
                             request by using query parameters.
-    OAUTH_017       400     Authorization header required.
+    OAUTH_017       400     Authorization header required - can be caused by not passing
+                            token value (token as a empty string or None or no token in header)
     OAUTH_019       401     Oauth token not found - probably caused by using token with not high
                             enough credentials.
     OAUTH_023/27/   401     A team (Workspace) was not authorized by the user for a particular

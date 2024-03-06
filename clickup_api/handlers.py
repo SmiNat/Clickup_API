@@ -3,7 +3,8 @@ import random
 import string
 from urllib.parse import urlparse
 
-from .exceptions import DateSequenceError, DateTypeError, DateValueError
+from .exceptions import (DateSequenceError, DateTypeError, DateValueError,
+                         TimeDurationError)
 
 
 def is_url(url: str) -> bool:
@@ -51,7 +52,7 @@ def datetime_to_unix_time_in_milliseconds(
     date: datetime.datetime | list[int] | tuple[int],
 ) -> int:
     """Converts datetime.date or date represented by the list of [year, month, day] or
-    a tuple of (year, month day) to unix time in milliseconds."""
+    a tuple of (year, month, day) to unix time in milliseconds."""
     if date:
         if isinstance(date, datetime.datetime):
             date = int(date.timestamp() * 1000)
@@ -77,6 +78,54 @@ def date_as_string_to_unix_time_in_milliseconds(date: str) -> int:
             # print("🖥️ ", datetime_to_unix_time_in_milliseconds(string_to_int))
             return datetime_to_unix_time_in_milliseconds(string_to_int)
     return date
+
+
+def date_as_dict_to_unix_time_in_milliseconds(date: dict) -> int:
+    """Converts date expressed as a dictionaty of year, month, day to unix time
+    in milliseconds."""
+    if date:
+        if not isinstance(date, dict):
+            raise TypeError("Date should be expressed as a dictionary of year (int), "
+                            "month (int) and day (int).")
+        if len(date) != 3:
+            raise ValueError("Date dictionary should contain year (int), month (int) "
+                             "and day (int).")
+        date_as_a_list = list(date.values())
+        date = datetime_to_unix_time_in_milliseconds(date_as_a_list)
+    return date
+
+
+def time_estimate_to_unix_time_in_milliseconds(time_estimate: list[int]) -> int:
+    """Converts duration of time of [days, hours, minutes] to unix time
+    in milliseconds."""
+    if time_estimate:
+        if isinstance(time_estimate, (list, tuple)) and len(time_estimate) == 3:
+            try:
+                time_estimate = datetime.timedelta(
+                    days=time_estimate[0],
+                    hours=time_estimate[1],
+                    minutes=time_estimate[2]).total_seconds()*1000
+                return time_estimate
+            except TypeError as error:
+                raise DateTypeError(error)
+        else:
+            raise TimeDurationError()
+    return time_estimate
+
+
+def time_as_dict_to_unix_time_in_milliseconds(time: dict) -> int:
+    """Converts time expressed as a dictionaty of {days: int, hours: int, minutes: int}
+    to unix time in milliseconds."""
+    if time:
+        if not isinstance(time, dict):
+            raise TypeError("Time should be expressed as a dictionary of days (int), "
+                            "hours (int) and minutes (int).")
+        if len(time) != 3:
+            raise ValueError("Time dictionary should contain days (int), hours (int) "
+                             "and minutes (int).")
+        time_as_a_list = list(time.values())
+        time = time_estimate_to_unix_time_in_milliseconds(time_as_a_list)
+    return time
 
 
 def check_and_adjust_list_length(data: list, append_number: bool = False) -> list:

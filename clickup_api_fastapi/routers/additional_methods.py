@@ -1,19 +1,40 @@
 import datetime
 from typing import Annotated, Any
+from pydantic import BaseModel
 
 from fastapi import APIRouter, HTTPException, Query
+from fastapi.encoders import jsonable_encoder
 from starlette import status
 
 from clickup_api.handlers import split_int_array
 from clickup_api_fastapi.routers.get_methods import (
     get_authorized_teams_workspaces,
     get_time_entries,
-)
+    get_task
+    )
+from .post_put_methods import (
+    CreateChecklist, CreateChecklistItem, CreateTaskFullRequest,
+    create_task, create_checklist, create_checklist_item,
+    )
+from ..utils import validate_token
 
-router = APIRouter(tags=["new methods"])
+
+router = APIRouter(tags=["ClickUp additional (mixed) methods"])
 
 
-async def request_workspace_ids(team_id: Any | None = None) -> list | tuple:
+class Checklists(CreateChecklist):
+    items: list[CreateChecklistItem] | None
+
+
+class Task(BaseModel):
+    task: CreateTaskFullRequest
+    checklists: list[Checklists]
+
+
+async def request_workspace_ids(
+    team_id: Any | None = None,
+    token: str | None = None
+) -> list | tuple:
     """
     If no 'team_id' - returns a list of workspaces (team_ids) authorized for a token
     owner from get_authorized_teams_workspaces request.
@@ -31,8 +52,10 @@ async def request_workspace_ids(team_id: Any | None = None) -> list | tuple:
             Returns a list or a tuple of team_ids (workspaces).
     """
 
+    validate_token(token)
+
     if not team_id:
-        workspaces = await get_authorized_teams_workspaces()
+        workspaces = await get_authorized_teams_workspaces(token)
         if not workspaces["teams"]:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
@@ -85,22 +108,45 @@ async def request_time_entries_for_workspace_ids(
     return responses
 
 
+async def request_assignee_by_username(username: str, token: str | None) -> int:
+    workspaces_data = await get_authorized_teams_workspaces(token)
+    for team in workspaces_data["teams"]:
+        is_user_in_workspace = False
+        for user in team["members"]:
+            if username.casefold() == user["user"]["username"].casefold():
+                assignee = user["user"][
+                    "id"
+                ]  # getting user_id from username from workspace
+                is_user_in_workspace = True
+                break
+
+    if not is_user_in_workspace:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"User '{username}' not found in workspace list of members.  "
+            "Validate 'username' argument or use another token to search "
+            "through different workspaces.",
+        )
+    print(assignee)
+    return assignee
+
+
 @router.get("/additional/user_worktime", status_code=status.HTTP_200_OK)
 async def user_worktime(
     start_date: Annotated[
         str | None,
         Query(
-            description="Date in sequence: Year, Month, Day. \
-            Use integers for date parameters. Use comma to separate parameters. \
-                Example: 2024, 5, 15"
+            description="Date in sequence: Year, Month, Day. "
+            "Use integers for date parameters. Use comma to separate parameters. "
+            "Example: 2024, 5, 15"
         ),
     ] = None,
     end_date: Annotated[
         str | None,
         Query(
-            description="Date in sequence: Year, Month, Day. \
-            Use integers for date parameters. Use comma to separate parameters. \
-                Example: 2024, 5, 15"
+            description="Date in sequence: Year, Month, Day. "
+            "Use integers for date parameters. Use comma to separate parameters. "
+            "Example: 2024, 5, 15"
         ),
     ] = None,
     assignee: Annotated[
@@ -109,7 +155,11 @@ async def user_worktime(
     ] = None,
     team_id: Annotated[list[int] | None, Query()] = None,
     only_billable: bool = False,
-):
+    token: str | None = None
+) -> dict:
+
+    validate_token(token)
+
     workspaces = await request_workspace_ids(team_id=team_id)
 
     time_entry_responses = await request_time_entries_for_workspace_ids(
@@ -117,6 +167,7 @@ async def user_worktime(
         start_date=start_date,
         end_date=end_date,
         assignee=assignee,
+        token=token
     )
 
     duration_per_user = {}
@@ -151,29 +202,32 @@ async def user_tasks(
     start_date: Annotated[
         str | None,
         Query(
-            description="Date in sequence: Year, Month, Day. \
-            Use integers for date parameters. Use comma to separate parameters. \
-                Example: 2024, 5, 15"
+            description="Date in sequence: Year, Month, Day. "
+            "Use integers for date parameters. Use comma to separate parameters. "
+            "Example: 2024, 5, 15"
         ),
     ] = None,
     end_date: Annotated[
         str | None,
         Query(
-            description="Date in sequence: Year, Month, Day. \
-            Use integers for date parameters. Use comma to separate parameters. \
-                Example: 2024, 5, 15"
+            description="Date in sequence: Year, Month, Day. "
+            "Use integers for date parameters. Use comma to separate parameters. "
+            "Example: 2024, 5, 15"
         ),
     ] = None,
     team_id: Annotated[
         list[int | str] | None,
         Query(
-            description="Team ID (Workspace). Note: one user may be assigned to more \
-                than one team. To receive tasks from multiple workspaces, use comma to \
-                    separate team IDs. If None, includes all teams available for \
-                        token owner. Defaults to None."
+            description="Team ID (Workspace). Note: one user may be assigned to more "
+            "than one team. To receive tasks from multiple workspaces, use comma to "
+            "separate team IDs. If None, includes all teams available for token owner. "
+            "Defaults to None."
         ),
     ] = None,
-):
+    token: str | None = None
+) -> dict:
+
+    validate_token(token)
 
     # cleaning team_id of trailing commas and spaces
     if team_id:
@@ -189,25 +243,8 @@ async def user_tasks(
                 )
     workspaces_ids = await request_workspace_ids(team_id=team_id)
 
-    # for filtering by username and surname instead of user_id:
-    workspaces_data = await get_authorized_teams_workspaces()
-    for team in workspaces_data["teams"]:
-        is_user_in_workspace = False
-        for user in team["members"]:
-            if username.casefold() == user["user"]["username"].casefold():
-                assignee = user["user"][
-                    "id"
-                ]  # getting user_id from username from workspace
-                is_user_in_workspace = True
-                break
-
-    if not is_user_in_workspace:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"User '{username}' not found in workspace list of members.  "
-            "Validate 'username' argument or use another token to search "
-            "through different workspaces.",
-        )
+    # getting user_id from username:
+    assignee = await request_assignee_by_username(username, token)
 
     time_entry_responses = await request_time_entries_for_workspace_ids(
         workspaces_ids,
@@ -215,9 +252,11 @@ async def user_tasks(
         end_date=end_date,
         assignee=assignee,
         custom_task_ids=True,
+        token=token
     )
 
-    # all unique tasks by ids (one task can appear many times depending on the number of times tracked):
+    # all unique tasks by ids (one task can appear many times depending on the number
+    # of times tracked):
     task_ids = []
     # all time tracked ids for all tasks (each time track has its own id):
     task_entry_ids = []
@@ -234,7 +273,8 @@ async def user_tasks(
         # accessing response data from request made on get_time_entries on each workspace:
         if response["data"]:
             for task in response["data"]:
-                # increasing time duration for existing task in user_tasks dict (task with multiple time entrances):
+                # increasing time duration for existing task in user_tasks dict
+                # (task with multiple time entrances):
                 if task["task"]["id"] in task_ids:
                     for element in user_tasks["tasks"]:
                         if task["task"]["id"] == element["task_id"]:
@@ -278,3 +318,55 @@ async def user_tasks(
     # print("✅ task_entry_ids:", task_entry_ids, "list length:", len(task_entry_ids))
 
     return user_tasks
+
+
+@router.post("/additional/add/task_comprehensive",
+             name="Create task with checklists and checklist items",
+             status_code=status.HTTP_201_CREATED)
+async def create_task_with_checklist_items(
+    list_id: str,
+    task: Task,
+    custom_task_ids: bool = False,
+    team_id: int | None = None,
+    token: str | None = None
+):
+
+    validate_token(token)
+
+    # print("✅ task: ", task)
+    # print("✅ task_encoded: ", jsonable_encoder(task))
+
+    new_task = await create_task(
+        list_id,
+        task=jsonable_encoder(task)["task"],
+        custom_task_ids=custom_task_ids,
+        team_id=team_id,
+        token=token
+        )
+
+    # print("✅ new_task: ", new_task)
+    task_id = new_task["id"]
+
+    for checklist in jsonable_encoder(task)["checklists"]:
+        # print("✅ checklist: ", checklist)
+        # print("✅ checklist name: ", checklist["name"])
+
+        new_checklist = await create_checklist(
+            task_id,
+            name={"name": checklist["name"]},
+            custom_task_ids=custom_task_ids,
+            team_id=team_id,
+            token=token
+        )
+        # print("✅ new_checklist: ", new_checklist)
+
+        checklist_id = new_checklist["checklist"]["id"]
+
+        for item in checklist["items"]:
+
+            new_item = await create_checklist_item(checklist_id, item, token)
+            # print("✅ new_item: ", new_item)
+
+
+    return await get_task(task_id)
+    # return task.model_dump_json()

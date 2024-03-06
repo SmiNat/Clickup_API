@@ -14,7 +14,7 @@ class ClickUpAPI:
     available_statuses = [
         "nowe",
         "w trakcie",
-        "oczekujące",
+        "oczekuje",
         "odrzucone",
         "gotowe",
         "zamknięte",

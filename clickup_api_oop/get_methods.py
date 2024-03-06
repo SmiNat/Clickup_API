@@ -169,8 +169,8 @@ class ClickUpGETMethods(ClickUpAPI):
 
         Args:
             space_id (int)
-            archived (bool, optional):
-                If True, returns response of archived data. Defaults to False
+            archived (bool):
+                If True, returns response of archived data. Defaults to False.
             as_json (bool, optional):
                 If True, returns response as a JSON type. Defaults to True.
             token (str | None, optional):
@@ -389,9 +389,9 @@ class ClickUpGETMethods(ClickUpAPI):
                 List of available statuses: see 'available_statuses' class attribute.
             include_closed (bool, optional):
                 Include or excluse closed tasks. By default, they are excluded. {}
-            assignees (list[int | str] | None):
+            assignees (list[int | str] | None, optional):
                 Filter by Assignees. Defaults to None.
-            tags (list[str] | None):
+            tags (list[str] | None, optional):
                 Filter by Tags. Defaults to None.
             due_date_gt (datetime.datetime | list[int] | tuple[int] | None, optional):
                 Filter by due date greater than Unix time in milliseconds.
@@ -555,14 +555,15 @@ class ClickUpGETMethods(ClickUpAPI):
         Args:
             task_id (str):
                 ClickUp task id.
-            custom_task_ids (bool, optional):
+            custom_task_ids (bool):
                 If you want to reference a task by it's custom task ID, this value
                 must be set to True. Defaults to False.
             team_id (int | None, optional):
-                Only used when the custom_task_ids parameter is set to True. Defaults to None.
-            include_subtasks (bool, optional):
+                Only used when the custom_task_ids parameter is set to True.
+                Defaults to None.
+            include_subtasks (bool):
                 Include subtasks. Defaults to False.
-            include_markdown_description (bool, optional):
+            include_markdown_description (bool):
                 Return task descriptions in Markdown format. Defaults to False.
             as_json (bool, optional):
                 If True, returns response as a JSON type. Defaults to True.

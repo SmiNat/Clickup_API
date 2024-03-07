@@ -1,23 +1,27 @@
 import datetime
 from typing import Annotated, Any
-from pydantic import BaseModel
 
 from fastapi import APIRouter, HTTPException, Query
 from fastapi.encoders import jsonable_encoder
+from pydantic import BaseModel
 from starlette import status
 
 from clickup_api.handlers import split_int_array
 from clickup_api_fastapi.routers.get_methods import (
     get_authorized_teams_workspaces,
+    get_task,
     get_time_entries,
-    get_task
-    )
-from .post_put_methods import (
-    CreateChecklist, CreateChecklistItem, CreateTaskFullRequest,
-    create_task, create_checklist, create_checklist_item,
-    )
-from ..utils import validate_token
+)
 
+from ..utils import validate_token
+from .post_put_methods import (
+    CreateChecklist,
+    CreateChecklistItem,
+    CreateTaskFullRequest,
+    create_checklist,
+    create_checklist_item,
+    create_task,
+)
 
 router = APIRouter(tags=["ClickUp additional (mixed) methods"])
 
@@ -32,8 +36,7 @@ class Task(BaseModel):
 
 
 async def request_workspace_ids(
-    team_id: Any | None = None,
-    token: str | None = None
+    team_id: Any | None = None, token: str | None = None
 ) -> list | tuple:
     """
     If no 'team_id' - returns a list of workspaces (team_ids) authorized for a token
@@ -155,7 +158,7 @@ async def user_worktime(
     ] = None,
     team_id: Annotated[list[int] | None, Query()] = None,
     only_billable: bool = False,
-    token: str | None = None
+    token: str | None = None,
 ) -> dict:
 
     validate_token(token)
@@ -167,7 +170,7 @@ async def user_worktime(
         start_date=start_date,
         end_date=end_date,
         assignee=assignee,
-        token=token
+        token=token,
     )
 
     duration_per_user = {}
@@ -224,7 +227,7 @@ async def user_tasks(
             "Defaults to None."
         ),
     ] = None,
-    token: str | None = None
+    token: str | None = None,
 ) -> dict:
 
     validate_token(token)
@@ -252,7 +255,7 @@ async def user_tasks(
         end_date=end_date,
         assignee=assignee,
         custom_task_ids=True,
-        token=token
+        token=token,
     )
 
     # all unique tasks by ids (one task can appear many times depending on the number
@@ -320,15 +323,17 @@ async def user_tasks(
     return user_tasks
 
 
-@router.post("/additional/add/task_comprehensive",
-             name="Create task with checklists and checklist items",
-             status_code=status.HTTP_201_CREATED)
+@router.post(
+    "/additional/add/task_comprehensive",
+    name="Create task with checklists and checklist items",
+    status_code=status.HTTP_201_CREATED,
+)
 async def create_task_with_checklist_items(
     list_id: str,
     task: Task,
     custom_task_ids: bool = False,
     team_id: int | None = None,
-    token: str | None = None
+    token: str | None = None,
 ):
 
     validate_token(token)
@@ -341,8 +346,8 @@ async def create_task_with_checklist_items(
         task=jsonable_encoder(task)["task"],
         custom_task_ids=custom_task_ids,
         team_id=team_id,
-        token=token
-        )
+        token=token,
+    )
 
     # print("✅ new_task: ", new_task)
     task_id = new_task["id"]
@@ -356,7 +361,7 @@ async def create_task_with_checklist_items(
             name={"name": checklist["name"]},
             custom_task_ids=custom_task_ids,
             team_id=team_id,
-            token=token
+            token=token,
         )
         # print("✅ new_checklist: ", new_checklist)
 
@@ -366,7 +371,6 @@ async def create_task_with_checklist_items(
 
             new_item = await create_checklist_item(checklist_id, item, token)
             # print("✅ new_item: ", new_item)
-
 
     return await get_task(task_id)
     # return task.model_dump_json()

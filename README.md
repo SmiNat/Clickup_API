@@ -104,10 +104,13 @@ To start a FastAPI based on ClickUp API use commend:
     ECODE           Status  Message/meaning
     ACCESS_083      401     Not found / You do not have access to this task.
     ACCESS_190      404     Not found.
+    APP_001         404     Route not found - check if all required parameters are given.
     CHECK_012       500     Internal server error
     CHECK_028       400     Assignee must have access to checklist item - requires
                             Assignee id or None as a assignee parameter.
+    COMM_003        500     Invalid syntax input for integer.
     CRTSK_001       400     Status not found.
+    DEPENDS_009     400     Missing required options depends_on or dependency_of.
     GROUP_HELPERS_001  500  Invalid input syntax for type uuid. Check ID for field value.
     INPUT_002/03    400     Invalid ID.
     ITEM_155        400     Field must be a json parsable string (array of strings).
@@ -129,9 +132,11 @@ To start a FastAPI based on ClickUp API use commend:
     OAUTH_040/      400     Parameter must be an array (list or tuple) - at least two elements
                             required (empty string as a second element can solve the issue in case
                             of filtering by only one element in list/tuple).
+    OAUTH_062       401     Comment is required.
     OAUTH_064       400     View must be a conversation / invalid view ID.
-    OAUTH_095       400     Invalid input syntax for type uuid: "None" - usually due to the lack
-                            of one of required parameters.
+    OUATH_066       404     Comment not found.
+    OAUTH_095/97    400/500 Invalid input syntax for type uuid: "None" (or any other value)
+                            - usually due to the lack of one of required parameters.
     PAGE_047        400     Must be a task view / invalid view ID.
     PUBAPITASK_008  400     Custom items must be an arra - also appears if list containsonly
                             one element. Add second element to solve the isssue. Second element

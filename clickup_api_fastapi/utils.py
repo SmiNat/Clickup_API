@@ -1,5 +1,5 @@
+from fastapi import HTTPException, status
 
-from fastapi import status, HTTPException
 from .enums import Static
 
 
@@ -18,5 +18,7 @@ def validate_token(token: str | None) -> bool:
         except AttributeError:
             token = None
     if not token or token == "None":
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,
-                            detail="Token not found / invalid token.")
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Token not found / invalid token.",
+        )

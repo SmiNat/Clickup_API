@@ -1,14 +1,13 @@
 import datetime
-import requests
-from fastapi import APIRouter, Query, status, HTTPException
 from typing import Annotated
 
-from clickup_api.handlers import (
-    date_as_string_to_unix_time_in_milliseconds,
-    split_int_array,
-    split_string_array,
-)
+import requests
+from fastapi import APIRouter, HTTPException, Query, status
+
+from clickup_api.handlers import (date_as_string_to_unix_time_in_milliseconds,
+                                  split_int_array, split_string_array)
 from clickup_api_fastapi.enums import Static
+
 from ..utils import header, validate_token
 
 # uvicorn clickup_api_fastapi.main:app --reload
@@ -50,7 +49,7 @@ async def get_teams(
     group_ids: Annotated[
         str | None, Query(description="Refers to the id of a user group.")
     ] = None,
-    token: str | None = None
+    token: str | None = None,
 ):
     """This endpoint is used to view Teams: user groups in your Workspace."""
 
@@ -140,9 +139,7 @@ async def get_list(list_id: int, token: str | None = None):
 
 @router.get("/space/{space_id}/list")
 async def get_folderless_lists(
-    space_id: int,
-    archived: bool = False,
-    token: str | None = None
+    space_id: int, archived: bool = False, token: str | None = None
 ):
     validate_token(token)
     url = f"{URL}/space/{str(space_id)}/list"
@@ -252,7 +249,7 @@ async def get_tasks(
             "other number returns the custom task type as defined in your Workspace."
         ),
     ] = None,
-    token: str | None = None
+    token: str | None = None,
 ):
     """Responses are limited to 100 tasks per page.
     You can only view task information of tasks you can access.
@@ -301,7 +298,7 @@ async def get_task(
     team_id: int | None = None,
     include_subtasks: bool = False,
     include_markdown_description: bool = False,
-    token: str | None = None
+    token: str | None = None,
 ):
     """You can only view task information of tasks you can access."""
 
@@ -377,7 +374,7 @@ async def get_time_entries(
             description="Only used when the custom_task_ids parameter is set to true."
         ),
     ] = None,
-    token: str | None = None
+    token: str | None = None,
 ):
     validate_token(token)
     url = f"{URL}/team/{str(team_id)}/time_entries"
@@ -427,7 +424,7 @@ async def get_task_comments(
     start_id: Annotated[
         str | None, Query(description="Enter the Comment id of a task comment.")
     ] = None,
-    token: str | None = None
+    token: str | None = None,
 ):
     """If you do not include the start and start_id parameters, this endpoint will
     return the most recent 25 comments. Use the start and start id parameters of the
@@ -465,7 +462,7 @@ async def get_list_comments(
     start_id: Annotated[
         str | None, Query(description="Enter the Comment id of a task comment")
     ] = None,
-    token: str | None = None
+    token: str | None = None,
 ):
     """If you do not include the start and start_id parameters, this endpoint will
     return the most recent 25 comments. Use the start and start id parameters of the
@@ -499,7 +496,7 @@ async def get_chat_view_comments(
     start_id: Annotated[
         str | None, Query(description="Enter the Comment id of a task comment")
     ] = None,
-    token: str | None = None
+    token: str | None = None,
 ):
     """If you do not include the start and start_id parameters, this endpoint will
     return the most recent 25 comments. Use the start and start id parameters of the

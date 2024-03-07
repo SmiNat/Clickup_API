@@ -5,12 +5,9 @@ import datetime
 import requests
 from dotenv import load_dotenv
 
-from clickup_api.handlers import (
-    check_and_adjust_list_length,
-    check_boolean,
-    check_integer_list,
-    datetime_to_unix_time_in_milliseconds,
-)
+from clickup_api.handlers import (check_and_adjust_list_length, check_boolean,
+                                  check_integer_list,
+                                  datetime_to_unix_time_in_milliseconds)
 
 from .main import ClickUpAPI
 
@@ -31,15 +28,13 @@ class ClickUpGETMethods(ClickUpAPI):
         More info: https://clickup.com/api/clickupreference/operation/GetAuthorizedUser/
 
         Args:
-            as_json (bool, optional):
-                If True, returns response as a JSON type. Defaults to True.
-            token (str | None, optional):
-                Token for request authentication. If None, uses token of an instance.
-                Defaults to None.
+            as_json (bool, optional): If True, returns response as a JSON type. \
+                Defaults to True.
+            token (str | None, optional): Token for request authentication. \
+                If None, uses token of an instance. Defaults to None.
         Returns:
-            dict | Any:
-                Returns response either as a class 'requests.models.Response' or
-                as a JSON dictionary.
+            dict | Any: Returns response either as a class 'requests.models.Response' \
+                or as a JSON dictionary.
         """
 
         url = self.api_url + "user/"
@@ -54,15 +49,13 @@ class ClickUpGETMethods(ClickUpAPI):
         More info: https://clickup.com/api/clickupreference/operation/GetAuthorizedTeams/
 
         Args:
-            as_json (bool, optional):
-                If True, returns response as a JSON type. Defaults to True.
-            token (str | None, optional):
-                Token for request authentication. If None, uses token of an instance.
-                Defaults to None.
+            as_json (bool, optional): If True, returns response as a JSON type. \
+                Defaults to True.
+            token (str | None, optional): Token for request authentication. \
+                If None, uses token of an instance.  Defaults to None.
         Returns:
-            dict | Any:
-                Returns response either as a class 'requests.models.Response' or
-                as a JSON dictionary.
+            dict | Any:Returns response either as a class 'requests.models.Response' \
+                or as a JSON dictionary.
         """
 
         url = self.api_url + "team/"
@@ -83,19 +76,15 @@ class ClickUpGETMethods(ClickUpAPI):
         Additional info: https://help.clickup.com/hc/en-us/articles/6326036524823-Create-user-groups-with-Teams
 
         Args:
-            team_id (int | None, optional):
-                ID of a Workspace. Defaults to None.
-            group_ids (str | None, optional):
-                ID(s) of a user group. Defaults to None.
-            as_json (bool, optional):
-                If True, returns response as a JSON type. Defaults to True.
-            token (str | None, optional):
-                Token for request authentication. If None, uses token of an instance.
-                Defaults to None.
+            team_id (int | None, optional): ID of a Workspace. Defaults to None.
+            group_ids (str | None, optional): ID(s) of a user group. Defaults to None.
+            as_json (bool, optional): If True, returns response as a JSON type. \
+                Defaults to True.
+            token (str | None, optional): Token for request authentication. \
+                If None, uses token of an instance. Defaults to None.
         Returns:
-            dict | Any:
-                Returns response either as a class 'requests.models.Response' or
-                as a JSON dictionary.
+            dict | Any: Returns response either as a class 'requests.models.Response' \
+                or as a JSON dictionary.
         """
 
         url = self.api_url + "group"
@@ -113,17 +102,14 @@ class ClickUpGETMethods(ClickUpAPI):
         More info: https://clickup.com/api/clickupreference/operation/GetSpaces//
 
         Args:
-            team_id (int):
-                Team ID (Workspace).
-            as_json (bool, optional):
-                If True, returns response as a JSON type. Defaults to True.
-            token (str | None, optional):
-                Token for request authentication. If None, uses token of an instance.
-                Defaults to None.
+            team_id (int): Team ID (Workspace).
+            as_json (bool, optional): If True, returns response as a JSON type. \
+                Defaults to True.
+            token (str | None, optional): Token for request authentication. \
+                If None, uses token of an instance. Defaults to None.
         Returns:
-            dict | Any:
-                Returns response either as a class 'requests.models.Response' or
-                as a JSON dictionary.
+            dict | Any: Returns response either as a class 'requests.models.Response' \
+                or as a JSON dictionary.
         """
 
         url = self.api_url + "team/" + str(team_id) + "/space"
@@ -140,15 +126,13 @@ class ClickUpGETMethods(ClickUpAPI):
 
         Args:
             space_id (int)
-            as_json (bool, optional):
-                If True, returns response as a JSON type. Defaults to True.
-            token (str | None, optional):
-                Token for request authentication. If None, uses token of an instance.
-                Defaults to None.
+            as_json (bool, optional): If True, returns response as a JSON type. \
+                Defaults to True.
+            token (str | None, optional): Token for request authentication. \
+                If None, uses token of an instance. Defaults to None.
         Returns:
-            dict | Any:
-                Returns response either as a class 'requests.models.Response' or
-                as a JSON dictionary.
+            dict | Any: Returns response either as a class 'requests.models.Response' \
+                or as a JSON dictionary.
         """
 
         url = self.api_url + "space/" + str(space_id)
@@ -169,17 +153,15 @@ class ClickUpGETMethods(ClickUpAPI):
 
         Args:
             space_id (int)
-            archived (bool):
-                If True, returns response of archived data. Defaults to False.
-            as_json (bool, optional):
-                If True, returns response as a JSON type. Defaults to True.
-            token (str | None, optional):
-                Token for request authentication. If None, uses token of an instance.
-                Defaults to None.
+            archived (bool): If True, returns response of archived data. \
+                Defaults to False.
+            as_json (bool, optional): If True, returns response as a JSON type. \
+                Defaults to True.
+            token (str | None, optional): Token for request authentication. \
+                If None, uses token of an instance. Defaults to None.
         Returns:
-            dict | Any:
-                Returns response either as a class 'requests.models.Response' or
-                as a JSON dictionary.
+            dict | Any: Returns response either as a class 'requests.models.Response' \
+                or as a JSON dictionary.
         """
 
         url = self.api_url + "space/" + str(space_id) + "/folder"
@@ -203,15 +185,13 @@ class ClickUpGETMethods(ClickUpAPI):
 
         Args:
             folder_id (int)
-            as_json (bool, optional):
-                If True, returns response as a JSON type. Defaults to True.
-            token (str | None, optional):
-                Token for request authentication. If None, uses token of an instance.
-                Defaults to None.
+            as_json (bool, optional): If True, returns response as a JSON type. \
+                Defaults to True.
+            token (str | None, optional): Token for request authentication. \
+                If None, uses token of an instance. Defaults to None.
         Returns:
-            dict | Any:
-                Returns response either as a class 'requests.models.Response' or
-                as a JSON dictionary.
+            dict | Any: Returns response either as a class 'requests.models.Response' \
+                or as a JSON dictionary.
         """
 
         url = self.api_url + "folder/" + str(folder_id)
@@ -231,19 +211,16 @@ class ClickUpGETMethods(ClickUpAPI):
         More info: https://clickup.com/api/clickupreference/operation/GetLists/
 
         Args:
-            folder_id (int):
-                ID of a Folder.
-            archived (bool, optional):
-                If True, returns response of archived data. Defaults to False.
-            as_json (bool, optional):
-                If True, returns response as a JSON type. Defaults to True.
-            token (str | None, optional):
-                Token for request authentication. If None, uses token of an instance.
-                Defaults to None.
+            folder_id (int): ID of a Folder.
+            archived (bool, optional): If True, returns response of archived data. \
+                Defaults to False.
+            as_json (bool, optional): If True, returns response as a JSON type. \
+                Defaults to True.
+            token (str | None, optional): Token for request authentication. \
+                If None, uses token of an instance. Defaults to None.
         Returns:
-            dict | Any:
-                Returns response either as a class 'requests.models.Response' or
-                as a JSON dictionary.
+            dict | Any: Returns response either as a class 'requests.models.Response' \
+                or as a JSON dictionary.
         """
 
         url = self.api_url + "folder/" + str(folder_id) + "/list"
@@ -267,15 +244,13 @@ class ClickUpGETMethods(ClickUpAPI):
 
         Args:
             list_id (int)
-            as_json (bool, optional):
-                If True, returns response as a JSON type. Defaults to True.
-            token (str | None, optional):
-                Token for request authentication. If None, uses token of an instance.
-                Defaults to None.
+            as_json (bool, optional): If True, returns response as a JSON type. \
+                Defaults to True.
+            token (str | None, optional): Token for request authentication. \
+                If None, uses token of an instance. Defaults to None.
         Returns:
-            dict | Any:
-                Returns response either as a class 'requests.models.Response' or
-                as a JSON dictionary.
+            dict | Any: Returns response either as a class 'requests.models.Response' \
+                or as a JSON dictionary.
         """
 
         url = self.api_url + "list/" + str(list_id)
@@ -296,17 +271,15 @@ class ClickUpGETMethods(ClickUpAPI):
 
         Args:
             space_id (int)
-            archived (bool, optional):
-                If True, returns response of archived data. Defaults to False.
-            as_json (bool, optional):
-                If True, returns response as a JSON type. Defaults to True.
-            token (str | None, optional):
-                Token for request authentication. If None, uses token of an instance.
-                Defaults to None.
+            archived (bool, optional):  If True, returns response of archived data. \
+                Defaults to False.
+            as_json (bool, optional): If True, returns response as a JSON type. \
+                Defaults to True.
+            token (str | None, optional): Token for request authentication. \
+                If None, uses token of an instance. Defaults to None.
         Returns:
-            dict | Any:
-                Returns response either as a class 'requests.models.Response' or
-                as a JSON dictionary.
+            dict | Any: Returns response either as a class 'requests.models.Response' \
+                or as a JSON dictionary.
         """
 
         url = self.api_url + "space/" + str(space_id) + "/list"
@@ -369,94 +342,87 @@ class ClickUpGETMethods(ClickUpAPI):
         For filtering tasks using custom fields: https://clickup.com/api/developer-portal/filtertasks/
 
         Args:
-            list_id (int):
-                ID of a List.
-            archived (bool, optional):
-                If True, returns response of archived data. Defaults to False.
-            include_markdown_description (bool, optional):
-                Return task descriptions in Markdown format. Defaults to False.
-            page (int, optional):
-                Page to fetch. Defaults to  0.
-            order_by (str, optional):
-                Order by a particular field. By default, tasks are ordered by created.
-                Options include: id, created, updated, and due_date.
-            reverse (bool, optional):
-                Tasks are displayed in reverse order. Defaults to False.
-            subtasks (bool, optional):
-                Include or exclude subtasks. By default, subtasks are excluded.
-            statuses (list[str] | None, optional):
-                Filter by statuses. Defaults to None.
+            list_id (int): ID of a List.
+            archived (bool, optional): If True, returns response of archived data. \
+                Defaults to False.
+            include_markdown_description (bool, optional): Return task descriptions \
+                in Markdown format. Defaults to False.
+            page (int, optional): Page to fetch. Defaults to  0.
+            order_by (str, optional): Order by a particular field. By default, \
+                tasks are ordered by created. Options include: id, created, updated, \
+                and due_date.
+            reverse (bool, optional): Tasks are displayed in reverse order. \
+                Defaults to False.
+            subtasks (bool, optional): Include or exclude subtasks. By default, \
+                subtasks are excluded.
+            statuses (list[str] | None, optional): Filter by statuses. Defaults to None. \
                 List of available statuses: see 'available_statuses' class attribute.
-            include_closed (bool, optional):
-                Include or excluse closed tasks. By default, they are excluded. {}
-            assignees (list[int | str] | None, optional):
-                Filter by Assignees. Defaults to None.
-            tags (list[str] | None, optional):
-                Filter by Tags. Defaults to None.
-            due_date_gt (datetime.datetime | list[int] | tuple[int] | None, optional):
-                Filter by due date greater than Unix time in milliseconds.
-                Use datetime.datetime() to set a due_date_gt.
-                Alternatively type due_date_gt as a list or a tuple of integer values
-                in the following order: (year, month, day[, hour, minute, second]).
+            include_closed (bool, optional): Include or excluse closed tasks. \
+                By default, they are excluded. {}
+            assignees (list[int | str] | None, optional): Filter by Assignees. \
                 Defaults to None.
-            due_date_lt (datetime.datetime | list[int] | tuple[int] | None, optional):
-                Filter by due date greater than Unix time in milliseconds.
-                Use datetime.datetime() to set a due_date_lt.
-                Alternatively type due_date_lt as a list or a tuple of integer values
-                in the following order: (year, month, day[, hour, minute, second]).
+            tags (list[str] | None, optional): ilter by Tags. Defaults to None.
+            due_date_gt (datetime.datetime | list[int] | tuple[int] | None, optional):\
+                Filter by due date greater than Unix time in milliseconds. \
+                Use datetime.datetime() to set a due_date_gt. \
+                Alternatively type due_date_gt as a list or a tuple of integer values \
+                in the following order: (year, month, day[, hour, minute, second]). \
                 Defaults to None.
-            date_created_gt (datetime.datetime | list[int] | tuple[int] | None, optional):
-                Filter by due date greater than Unix time in milliseconds.
-                Use datetime.datetime() to set a date_created_gt.
-                Alternatively type date_created_gt as a list or a tuple of integer values
-                in the following order: (year, month, day[, hour, minute, second]).
+            due_date_lt (datetime.datetime | list[int] | tuple[int] | None, optional): \
+                Filter by due date greater than Unix time in milliseconds. \
+                Use datetime.datetime() to set a due_date_lt. \
+                Alternatively type due_date_lt as a list or a tuple of integer values \
+                in the following order: (year, month, day[, hour, minute, second]). \
                 Defaults to None.
-            date_created_lt (datetime.datetime | list[int] | tuple[int] | None, optional):
-                Filter by due date greater than Unix time in milliseconds.
-                Use datetime.datetime() to set a date_created_lt.
-                Alternatively type date_created_lt as a list or a tuple of integer values
-                in the following order: (year, month, day[, hour, minute, second]).
+            date_created_gt (datetime.datetime | list[int] | tuple[int] | None, optional): \
+                Filter by due date greater than Unix time in milliseconds. \
+                Use datetime.datetime() to set a date_created_gt. \
+                Alternatively type date_created_gt as a list or a tuple of integer values \
+                in the following order: (year, month, day[, hour, minute, second]). \
                 Defaults to None.
-            date_updated_gt (datetime.datetime | list[int] | tuple[int] | None, optional):
-                Filter by due date greater than Unix time in milliseconds.
-                Use datetime.datetime() to set a date_updated_gt.
-                Alternatively type date_updated_gt as a list or a tuple of integer values
-                in the following order: (year, month, day[, hour, minute, second]).
+            date_created_lt (datetime.datetime | list[int] | tuple[int] | None, optional): \
+                Filter by due date greater than Unix time in milliseconds. \
+                Use datetime.datetime() to set a date_created_lt. \
+                Alternatively type date_created_lt as a list or a tuple of integer values \
+                in the following order: (year, month, day[, hour, minute, second]). \
                 Defaults to None.
-            date_updated_lt (datetime.datetime | list[int] | tuple[int] | None, optional):
-                Filter by due date greater than Unix time in milliseconds.
-                Use datetime.datetime() to set a date_updated_lt.
-                Alternatively type date_updated_lt as a list or a tuple of integer values
-                in the following order: (year, month, day[, hour, minute, second]).
+            date_updated_gt (datetime.datetime | list[int] | tuple[int] | None, optional): \
+                Filter by due date greater than Unix time in milliseconds. \
+                Use datetime.datetime() to set a date_updated_gt. \
+                Alternatively type date_updated_gt as a list or a tuple of integer values \
+                in the following order: (year, month, day[, hour, minute, second]). \
                 Defaults to None.
-            date_done_gt (datetime.datetime | list[int] | tuple[int] | None, optional):
-                Filter by due date greater than Unix time in milliseconds.
-                Use datetime.datetime() to set a date_done_gt.
-                Alternatively type date_done_gt as a list or a tuple of integer values
-                in the following order: (year, month, day[, hour, minute, second]).
+            date_updated_lt (datetime.datetime | list[int] | tuple[int] | None, optional): \
+                Filter by due date greater than Unix time in milliseconds. \
+                Use datetime.datetime() to set a date_updated_lt. \
+                Alternatively type date_updated_lt as a list or a tuple of integer values \
+                in the following order: (year, month, day[, hour, minute, second]). \
                 Defaults to None.
-            date_done_lt (datetime.datetime | list[int] | tuple[int] | None, optional):
-                Filter by due date greater than Unix time in milliseconds.
-                Use datetime.datetime() to set a date_done_lt.
-                Alternatively type date_done_lt as a list or a tuple of integer values
-                in the following order: (year, month, day[, hour, minute, second]).
+            date_done_gt (datetime.datetime | list[int] | tuple[int] | None, optional): \
+                Filter by due date greater than Unix time in milliseconds. \
+                Use datetime.datetime() to set a date_done_gt. \
+                Alternatively type date_done_gt as a list or a tuple of integer values \
+                in the following order: (year, month, day[, hour, minute, second]). \
                 Defaults to None.
-            custom_fields (list[str] | None, optional):
-                Include tasks with specific values in one or more Custom Fields.
-                Defaults to None. Note: Not Implemented.
-            custom_items (list[int] | None, optional):
-                Filter by custom task types. Defaults to None.
-                Including 0 returns tasks. Including 1 returns Milestones.
-                Including any other number returns the custom task type as defined in your Workspace.
-            as_json (bool, optional):
-                If True, returns response as a JSON type. Defaults to True.
-            token (str | None, optional):
-                Token for request authentication. If None, uses token of an instance.
+            date_done_lt (datetime.datetime | list[int] | tuple[int] | None, optional): \
+                Filter by due date greater than Unix time in milliseconds. \
+                Use datetime.datetime() to set a date_done_lt. \
+                Alternatively type date_done_lt as a list or a tuple of integer values \
+                in the following order: (year, month, day[, hour, minute, second]). \
                 Defaults to None.
+            custom_fields (list[str] | None, optional):  Include tasks with specific \
+                values in one or more Custom Fields.  Defaults to None. Note: Not Implemented.
+            custom_items (list[int] | None, optional): Filter by custom task types. \
+                Defaults to None. Icluding 0 returns tasks. Including 1 returns \
+                Milestones. Including any other number returns the custom task type \
+                as defined in your Workspace.
+            as_json (bool, optional): If True, returns response as a JSON type. \
+                Defaults to True.
+            token (str | None, optional): Token for request authentication. \
+                If None, uses token of an instance. Defaults to None.
         Returns:
-            dict | Any:
-                Returns response either as a class 'requests.models.Response' or
-                as a JSON dictionary.
+            dict | Any: Returns response either as a class 'requests.models.Response' \
+                or as a JSON dictionary.
         """
 
         url = self.api_url + "list/" + str(list_id) + "/task"
@@ -553,26 +519,21 @@ class ClickUpGETMethods(ClickUpAPI):
         More info: https://clickup.com/api/clickupreference/operation/GetTask/
 
         Args:
-            task_id (str):
-                ClickUp task id.
-            custom_task_ids (bool):
-                If you want to reference a task by it's custom task ID, this value
-                must be set to True. Defaults to False.
-            team_id (int | None, optional):
-                Only used when the custom_task_ids parameter is set to True.
-                Defaults to None.
-            include_subtasks (bool):
-                Include subtasks. Defaults to False.
-            include_markdown_description (bool):
-                Return task descriptions in Markdown format. Defaults to False.
-            as_json (bool, optional):
-                If True, returns response as a JSON type. Defaults to True.
-            token (str | None, optional):
-                Token for request authentication. Defaults to None.
+            task_id (str): ClickUp task id.
+            custom_task_ids (bool): If you want to reference a task by it's custom \
+                task ID, this value must be set to True. Defaults to False.
+            team_id (int | None, optional): Only used when the custom_task_ids \
+                parameter is set to True. Defaults to None.
+            include_subtasks (bool): Include subtasks. Defaults to False.
+            include_markdown_description (bool): Return task descriptions in \
+                Markdown format. Defaults to False.
+            as_json (bool, optional): If True, returns response as a JSON type. \
+                Defaults to True.
+            token (str | None, optional): Token for request authentication. \
+                If None, uses token of an instance. Defaults to None.
         Returns:
-            dict | Any:
-                Returns response either as a class 'requests.models.Response' or
-                as a JSON dictionary.
+            dict | Any: Returns response either as a class 'requests.models.Response' \
+                or as a JSON dictionary.
         """
 
         url = self.api_url + "task/" + str(task_id)
@@ -602,19 +563,15 @@ class ClickUpGETMethods(ClickUpAPI):
         More info: https://clickup.com/api/clickupreference/operation/GetUser/
 
         Args:
-            team_id (int):
-                Team ID (Workspace).
-            user_id (int):
-                User ID.
-            as_json (bool, optional):
-                If True, returns response as a JSON type. Defaults to True.
-            token (str | None, optional):
-                Token for request authentication. If None, uses token of an instance.
-                Defaults to None.
+            team_id (int): Team ID (Workspace).
+            user_id (int): User ID.
+            as_json (bool, optional): If True, returns response as a JSON type. \
+                Defaults to True.
+            token (str | None, optional): Token for request authentication. \
+                If None, uses token of an instance. Defaults to None.
         Returns:
-            dict | Any:
-                Returns response either as a class 'requests.models.Response' or
-                as a JSON dictionary.
+            dict | Any: Returns response either as a class 'requests.models.Response' \
+                or as a JSON dictionary.
         """
 
         url = self.api_url + "team/" + str(team_id) + "/user/" + str(user_id)
@@ -656,55 +613,47 @@ class ClickUpGETMethods(ClickUpAPI):
         More info: https://clickup.com/api/clickupreference/operation/Gettimeentrieswithinadaterange/
 
         Args:
-            team_id (int):
-                Team ID (Workspace).
-            start_date (datetime.datetime | list[int] | tuple[int] | None, optional):
-                Sets beginning of a time search. If None, equals to the beginning of
-                the current month. Use datetime.datetime() to set a start_date.
-                Alternatively type start_date as a list or a tuple of integer values
-                in the following order: (year, month, day[, hour, minute, second]).
+            team_id (int): Team ID (Workspace).
+            start_date (datetime.datetime | list[int] | tuple[int] | None, optional): \
+                Sets beginning of a time search. If None, equals to the beginning of \
+                the current month. Use datetime.datetime() to set a start_date. \
+                Alternatively type start_date as a list or a tuple of integer values \
+                in the following order: (year, month, day[, hour, minute, second]). \
                 Defaults to None.
-            end_date (datetime.datetime | list[int] | tuple[int] | None, optional):
-                Sets end of a time search. If None, equals to current date and time.
-                Use datetime.datetime() to set a end_date.
-                Alternatively type end_date as a list or a tuple of integer values
-                in the following order: (year, month, day[, hour, minute, second]).
+            end_date (datetime.datetime | list[int] | tuple[int] | None, optional): \
+                Sets end of a time search. If None, equals to current date and time. \
+                Use datetime.datetime() to set a end_date. \
+                Alternatively type end_date as a list or a tuple of integer values \
+                in the following order: (year, month, day[, hour, minute, second]). \
                 Defaults to None.
-            assignee (int | list[int] | tuple[int] | None, optional):
-                Filter time entries by user_id. Provide the user_id as an integer.
-                For multiple assignees, use list or tuple with user_id numbers.
+            assignee (int | list[int] | tuple[int] | None, optional): \
+                Filter time entries by user_id. Provide the user_id as an integer. \
+                For multiple assignees, use list or tuple with user_id numbers. \
                 Note: Only Workspace Owners/Admins have access to do this.
-            include_task_tags (bool, optional):
-                Include task tags in the response for time entries associated with tasks.
-                Defaults to False.
-            include_location_names (bool, optional):
-                Include the names of the List, Folder, and Space along with
-                the list_id, folder_id, and space_id. Defaults to False.
-            space_id (int | None, optional):
-                Only include time entries associated with tasks in a specific Space.
-                Defaults to None.
-            folder_id (int | None, optional):
-                Only include time entries associated with tasks in a specific Folder.
-                Defaults to None.
-            list_id (int | None, optional):
-                Only include time entries associated with tasks in a specific List.
-                Defaults to None.
-            task_id (str | None, optional):
-                Only include time entries associated with a specific task. Defaults to None.
-            custom_task_ids (bool, optional):
-                If you want to reference a task by it's custom task ID, this value
-                must be set to True. Defaults to False.
-            query_team_id (int | None, optional):
-                Only used when the custom_task_ids parameter is set to True. Defaults to None.
-            as_json (bool, optional):
-                If True, returns response as a JSON type. Defaults to True.
-            token (str | None, optional):
-                Token for request authentication. If None, uses token of an instance.
-                Defaults to None.
+            include_task_tags (bool, optional): Include task tags in the response \
+                for time entries associated with tasks. Defaults to False.
+            include_location_names (bool, optional): Include the names of the List, \
+                Folder, and Space along with the list_id, folder_id, and space_id. \
+                    Defaults to False.
+            space_id (int | None, optional): Only include time entries associated \
+                with tasks in a specific Space. Defaults to None.
+            folder_id (int | None, optional): Only include time entries associated \
+                with tasks in a specific Folder. Defaults to None.
+            list_id (int | None, optional): Only include time entries associated \
+                with tasks in a specific List. Defaults to None.
+            task_id (str | None, optional):  Only include time entries associated \
+                with a specific task. Defaults to None.
+            custom_task_ids (bool, optional): If you want to reference a task by \
+                it's custom task ID, this value  must be set to True. Defaults to False.
+            query_team_id (int | None, optional): Only used when the custom_task_ids \
+                parameter is set to True. Defaults to None.
+            as_json (bool, optional): If True, returns response as a JSON type. \
+                Defaults to True.
+            token (str | None, optional): Token for request authentication. \
+                If None, uses token of an instance. Defaults to None.
         Returns:
-            dict | Any:
-                Returns response either as a class 'requests.models.Response' or
-                as a JSON dictionary.
+            dict | Any: Returns response either as a class 'requests.models.Response' \
+                or as a JSON dictionary.
         """
 
         url = self.api_url + "team/" + str(team_id) + "/time_entries"
@@ -792,30 +741,25 @@ class ClickUpGETMethods(ClickUpAPI):
         More info: https://clickup.com/api/clickupreference/operation/GetTaskComments/
 
         Args:
-            task_id (str):
-                ID of a task.
-            custom_task_ids (bool, optional):
-                If you want to reference a task by it's custom task ID, this value
-                must be set to True. Defaults to False.
-            team_id (int | None, optional):
-                Team ID (Workspace). Only used when the custom_task_ids parameter is
-                set to true. Defaults to None.
-            start (datetime.datetime | list[int] | tuple[int] | None, optional):
-                The date of task comment. Use datetime.datetime() to set a start.
-                Alternatively type start as a list or a tuple of integer values
-                in the following order: (year, month, day[, hour, minute, second]).
+            task_id (str): ID of a task.
+            custom_task_ids (bool, optional): If you want to reference a task by \
+                it's custom task ID, this value must be set to True. Defaults to False.
+            team_id (int | None, optional): Team ID (Workspace). Only used when \
+                the custom_task_ids parameter is set to true. Defaults to None.
+            start (datetime.datetime | list[int] | tuple[int] | None, optional): \
+                The date of task comment. Use datetime.datetime() to set a start. \
+                Alternatively type start as a list or a tuple of integer values \
+                in the following order: (year, month, day[, hour, minute, second]). \
                 Defaults to None.
-            start_id (str | None, optional):
-                Enter the Comment id of a task comment. Defaults to None.
-            as_json (bool, optional):
-                If True, returns response as a JSON type. Defaults to True.
-            token (str | None, optional):
-                Token for request authentication. If None, uses token of an instance.
+            start_id (str | None, optional): Enter the Comment id of a task comment. \
                 Defaults to None.
+            as_json (bool, optional): If True, returns response as a JSON type. \
+                Defaults to True.
+            token (str | None, optional): Token for request authentication. \
+                If None, uses token of an instance. Defaults to None.
         Returns:
-            dict | Any:
-                Returns response either as a class 'requests.models.Response' or
-                as a JSON dictionary.
+            dict | Any: Returns response either as a class 'requests.models.Response' \
+                or as a JSON dictionary.
         """
 
         url = self.api_url + "task/" + str(task_id) + "/comment"
@@ -853,24 +797,21 @@ class ClickUpGETMethods(ClickUpAPI):
         More info: https://clickup.com/api/clickupreference/operation/GetListComments/
 
         Args:
-            list_id (int):
-                ID of a List.
-            start (datetime.datetime | list[int] | tuple[int] | None, optional):
-                The date of task comment. Use datetime.datetime() to set a start.
-                Alternatively type start as a list or a tuple of integer values
-                in the following order: (year, month, day[, hour, minute, second]).
+            list_id (int): ID of a List.
+            start (datetime.datetime | list[int] | tuple[int] | None, optional): \
+                The date of task comment. Use datetime.datetime() to set a start. \
+                Alternatively type start as a list or a tuple of integer values \
+                in the following order: (year, month, day[, hour, minute, second]). \
                 Defaults to None.
-            start_id (str | None, optional):
-                Enter the Comment id of a task comment. Defaults to None.
-            as_json (bool, optional):
-                If True, returns response as a JSON type. Defaults to True.
-            token (str | None, optional):
-                Token for request authentication. If None, uses token of an instance.
+            start_id (str | None, optional): Enter the Comment id of a task comment.\
                 Defaults to None.
+            as_json (bool, optional): If True, returns response as a JSON type. \
+                Defaults to True.
+            token (str | None, optional): Token for request authentication. \
+                If None, uses token of an instance. Defaults to None.
         Returns:
-            dict | Any:
-                Returns response either as a class 'requests.models.Response' or
-                as a JSON dictionary.
+            dict | Any: Returns response either as a class 'requests.models.Response' \
+                or as a JSON dictionary.
         """
 
         url = self.api_url + "list/" + str(list_id) + "/comment"
@@ -904,24 +845,21 @@ class ClickUpGETMethods(ClickUpAPI):
         More info: https://clickup.com/api/clickupreference/operation/GetChatViewComments/
 
         Args:
-            view_id (str):
-                ID of a View.
-            start (datetime.datetime | list[int] | tuple[int] | None, optional):
-                The date of task comment. Use datetime.datetime() to set a start.
-                Alternatively type start as a list or a tuple of integer values
-                in the following order: (year, month, day[, hour, minute, second]).
+            view_id (str): ID of a View.
+            start (datetime.datetime | list[int] | tuple[int] | None, optional): \
+                The date of task comment. Use datetime.datetime() to set a start. \
+                Alternatively type start as a list or a tuple of integer values \
+                in the following order: (year, month, day[, hour, minute, second]). \
                 Defaults to None.
-            start_id (str | None, optional):
-                Enter the Comment id of a task comment. Defaults to None.
-            as_json (bool, optional):
-                If True, returns response as a JSON type. Defaults to True.
-            token (str | None, optional):
-                Token for request authentication. If None, uses token of an instance.
+            start_id (str | None, optional): Enter the Comment id of a task comment. \
                 Defaults to None.
+            as_json (bool, optional): If True, returns response as a JSON type. \
+                Defaults to True.
+            token (str | None, optional): Token for request authentication. \
+                If None, uses token of an instance. Defaults to None.
         Returns:
-            dict | Any:
-                Returns response either as a class 'requests.models.Response' or
-                as a JSON dictionary.
+            dict | Any: Returns response either as a class 'requests.models.Response' \
+                or as a JSON dictionary.
         """
 
         url = self.api_url + "view/" + str(view_id) + "/comment"
@@ -945,17 +883,14 @@ class ClickUpGETMethods(ClickUpAPI):
         More info: https://clickup.com/api/clickupreference/operation/GetCustomItems/
 
         Args:
-            team_id (str):
-                Team ID (Workspace)
-            as_json (bool, optional):
-                If True, returns response as a JSON type. Defaults to True.
-            token (str | None, optional):
-                Token for request authentication. If None, uses token of an instance.
-                Defaults to None.
+            team_id (str): Team ID (Workspace)
+            as_json (bool, optional): If True, returns response as a JSON type. \
+                Defaults to True.
+            token (str | None, optional): Token for request authentication. \
+                If None, uses token of an instance. Defaults to None.
         Returns:
-            dict | Any:
-                Returns response either as a class 'requests.models.Response' or
-                as a JSON dictionary.
+            dict | Any: Returns response either as a class 'requests.models.Response' \
+                or as a JSON dictionary.
         """
 
         url = self.api_url + "team/" + str(team_id) + "/custom_item"
@@ -971,17 +906,14 @@ class ClickUpGETMethods(ClickUpAPI):
         More info: https://clickup.com/api/clickupreference/operation/GetAccessibleCustomFields/
 
         Args:
-            list_id (int):
-                ID of a List.
-            as_json (bool, optional):
-                If True, returns response as a JSON type. Defaults to True.
-            token (str | None, optional):
-                Token for request authentication. If None, uses token of an instance.
-                Defaults to None.
+            list_id (int): ID of a List.
+            as_json (bool, optional): If True, returns response as a JSON type. \
+                Defaults to True.
+            token (str | None, optional): Token for request authentication. \
+                If None, uses token of an instance. Defaults to None.
         Returns:
-            dict | Any:
-                Returns response either as a class 'requests.models.Response' or
-                as a JSON dictionary.
+            dict | Any: Returns response either as a class 'requests.models.Response' \
+                or as a JSON dictionary.
         """
 
         url = self.api_url + "list/" + str(list_id) + "/field"

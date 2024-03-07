@@ -85,11 +85,15 @@ def date_as_dict_to_unix_time_in_milliseconds(date: dict) -> int:
     in milliseconds."""
     if date:
         if not isinstance(date, dict):
-            raise TypeError("Date should be expressed as a dictionary of year (int), "
-                            "month (int) and day (int).")
+            raise TypeError(
+                "Date should be expressed as a dictionary of year (int), "
+                "month (int) and day (int)."
+            )
         if len(date) != 3:
-            raise ValueError("Date dictionary should contain year (int), month (int) "
-                             "and day (int).")
+            raise ValueError(
+                "Date dictionary should contain year (int), month (int) "
+                "and day (int)."
+            )
         date_as_a_list = list(date.values())
         date = datetime_to_unix_time_in_milliseconds(date_as_a_list)
     return date
@@ -101,10 +105,14 @@ def time_estimate_to_unix_time_in_milliseconds(time_estimate: list[int]) -> int:
     if time_estimate:
         if isinstance(time_estimate, (list, tuple)) and len(time_estimate) == 3:
             try:
-                time_estimate = datetime.timedelta(
-                    days=time_estimate[0],
-                    hours=time_estimate[1],
-                    minutes=time_estimate[2]).total_seconds()*1000
+                time_estimate = (
+                    datetime.timedelta(
+                        days=time_estimate[0],
+                        hours=time_estimate[1],
+                        minutes=time_estimate[2],
+                    ).total_seconds()
+                    * 1000
+                )
                 return time_estimate
             except TypeError as error:
                 raise DateTypeError(error)
@@ -118,11 +126,15 @@ def time_as_dict_to_unix_time_in_milliseconds(time: dict) -> int:
     to unix time in milliseconds."""
     if time:
         if not isinstance(time, dict):
-            raise TypeError("Time should be expressed as a dictionary of days (int), "
-                            "hours (int) and minutes (int).")
+            raise TypeError(
+                "Time should be expressed as a dictionary of days (int), "
+                "hours (int) and minutes (int)."
+            )
         if len(time) != 3:
-            raise ValueError("Time dictionary should contain days (int), hours (int) "
-                             "and minutes (int).")
+            raise ValueError(
+                "Time dictionary should contain days (int), hours (int) "
+                "and minutes (int)."
+            )
         time_as_a_list = list(time.values())
         time = time_estimate_to_unix_time_in_milliseconds(time_as_a_list)
     return time

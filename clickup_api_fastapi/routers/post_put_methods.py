@@ -1,7 +1,7 @@
 from typing import Annotated, Optional, Type
 
 import requests
-from fastapi import APIRouter, Body, HTTPException, Query
+from fastapi import APIRouter, Body, HTTPException, Path, Query
 from fastapi.encoders import jsonable_encoder
 from pydantic import BaseModel, Field
 from starlette import status
@@ -69,7 +69,9 @@ class CreateTaskFullRequest(TaskBasicRequest):
     )
     tags: list[str] | None = Field(default=None, examples=[["bugs", "backend"]])
     notify_all: bool = False
-    links_to: str | None = Field(default=None, examples=[None])
+    links_to: str | None = Field(
+        default=None, description="ID of a task", examples=[None]
+    )
     check_required_custom_fields: bool = False
     custom_fields: list[CustomFields] | None = Field(
         default=None,
@@ -129,6 +131,35 @@ class UpdateChecklistItem(BaseModel):
         "under another checklist item, include the other item's "
         "checklist_item_id.",
         examples=[None],
+    )
+
+
+class Comment(BaseModel):
+    comment_text: str
+    assignee: int | None = Field(default=None, examples=[None])
+
+
+class CreateComment(Comment):
+    notify_all: bool = False
+
+
+class UpdateComment(Comment):
+    comment_text: str | None = Field(default=None, examples=[None])
+    assignee: int | str | None = Field(default=None, examples=[None])
+    resolved: bool = False
+
+
+class ChatViewComment(BaseModel):
+    comment_text: str
+    notify_all: bool = False
+
+
+class TaskDependency(BaseModel):
+    depends_on: str | None = Field(
+        default=None, description="ID of a task", examples=[None]
+    )
+    dependency_of: str | None = Field(
+        default=None, description="ID of a task", examples=[None]
     )
 
 
@@ -211,6 +242,135 @@ async def edit_task(
 
     response = requests.put(
         url, headers=header(token), params=query, json=update_task_encoded
+    )
+    if not response.status_code < 400:
+        raise HTTPException(response.status_code, response.json())
+    return response.json()
+
+
+@router.post("/task/{task_id}/link/{links_to}", status_code=status.HTTP_201_CREATED)
+async def add_task_link(
+    task_id: str,
+    links_to: str = Path(
+        description="ID of a task to link",
+    ),
+    custom_task_ids: bool = False,
+    team_id: int | None = None,
+    token: str | None = None,
+):
+    validate_token(token)
+    url = f"{URL}/task/{str(task_id)}/link/{str(links_to)}"
+
+    custom_task_ids = "true" if team_id or custom_task_ids else "false"
+
+    query = {"custom_task_ids": custom_task_ids, "team_id": team_id}
+
+    response = requests.post(url, headers=header(token), params=query)
+    if not response.status_code < 400:
+        raise HTTPException(response.status_code, response.json())
+    return response.json()
+
+
+@router.post("/task/{task_id}/dependency", status_code=status.HTTP_201_CREATED)
+async def add_task_dependency(
+    task_id: str,
+    dependency: TaskDependency,
+    custom_task_ids: bool = False,
+    team_id: int | None = None,
+    token: str | None = None,
+):
+    validate_token(token)
+    url = f"{URL}/task/{str(task_id)}/dependency"
+
+    dependency_encoded = jsonable_encoder(dependency)
+    if dependency_encoded["depends_on"] and dependency_encoded["dependency_of"]:
+        raise HTTPException(
+            status_code=status.HTTP_406_NOT_ACCEPTABLE,
+            detail="Use either 'depends_on' or 'dependency_of', not both.",
+        )
+
+    custom_task_ids = "true" if team_id or custom_task_ids else "false"
+
+    query = {"custom_task_ids": custom_task_ids, "team_id": team_id}
+
+    response = requests.post(
+        url, headers=header(token), params=query, json=jsonable_encoder(dependency)
+    )
+    if not response.status_code < 400:
+        raise HTTPException(response.status_code, response.json())
+    return response.json()
+
+
+@router.post("/task/{task_id}/comment", status_code=status.HTTP_201_CREATED)
+async def create_task_comment(
+    task_id: str,
+    comment: CreateComment,
+    custom_task_ids: bool = False,
+    team_id: int | None = None,
+    token: str | None = None,
+):
+    validate_token(token)
+    url = f"{URL}/task/{str(task_id)}/comment"
+
+    custom_task_ids = "true" if team_id or custom_task_ids else "false"
+
+    query = {"custom_task_ids": custom_task_ids, "team_id": team_id}
+
+    response = requests.post(
+        url, headers=header(token), params=query, json=jsonable_encoder(comment)
+    )
+    if not response.status_code < 400:
+        raise HTTPException(response.status_code, response.json())
+    return response.json()
+
+
+@router.post("/list/{list_id}/comment", status_code=status.HTTP_201_CREATED)
+async def create_list_comment(
+    list_id: str,
+    comment: CreateComment,
+    token: str | None = None,
+):
+    validate_token(token)
+    url = f"{URL}/list/{str(list_id)}/comment"
+
+    response = requests.post(url, headers=header(token), json=jsonable_encoder(comment))
+    if not response.status_code < 400:
+        raise HTTPException(response.status_code, response.json())
+    return response.json()
+
+
+@router.post("/view/{view_id}/comment", status_code=status.HTTP_201_CREATED)
+async def create_chat_view_comment(
+    view_id: str,
+    comment: ChatViewComment,
+    token: str | None = None,
+):
+    validate_token(token)
+    url = f"{URL}/view/{str(view_id)}/comment"
+
+    response = requests.post(url, headers=header(token), json=jsonable_encoder(comment))
+    if not response.status_code < 400:
+        raise HTTPException(response.status_code, response.json())
+    return response.json()
+
+
+@router.put("/comment/{comment_id}", status_code=status.HTTP_202_ACCEPTED)
+async def update_comment(
+    comment_id: str,
+    comment: UpdateComment,
+    custom_task_ids: bool = False,
+    team_id: int | None = None,
+    token: str | None = None,
+):
+    validate_token(token)
+    url = f"{URL}/comment/{str(comment_id)}"
+
+    custom_task_ids = "true" if team_id or custom_task_ids else "false"
+
+    query = {"custom_task_ids": custom_task_ids, "team_id": team_id}
+
+    response = requests.put(
+        url, headers=header(token), params=query, json=jsonable_encoder(comment)
     )
     if not response.status_code < 400:
         raise HTTPException(response.status_code, response.json())

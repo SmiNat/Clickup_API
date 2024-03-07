@@ -4,11 +4,8 @@ from typing import Annotated
 import requests
 from fastapi import APIRouter, HTTPException, Query, status
 
-from clickup_api.handlers import (
-    date_as_string_to_unix_time_in_milliseconds,
-    split_int_array,
-    split_string_array,
-)
+from clickup_api.handlers import (date_as_string_to_unix_time_in_milliseconds,
+                                  split_int_array, split_string_array)
 from clickup_api_fastapi.enums import Static
 
 from ..utils import header, validate_token

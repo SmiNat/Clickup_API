@@ -2,15 +2,11 @@ DATE_SEQUENCE_ERROR = (
     "Type data in a correct sequence (year, month, day[, hour, minute, second])."
 )
 DATE_TYPE_ERROR = "All components must be integers."
-DATE_DATA_ERROR = (
-    "Invalid date. Use datetime.datetime() format or enter datetime as a \
+DATE_DATA_ERROR = "Invalid date. Use datetime.datetime() format or enter datetime as a \
     list/tuple with (year, month, day[, hour, minute, second]) values as an integers."
-)
-TIME_DURATION_ERROR = (
-    "Invalid time duration. Time duration has to be a list/tuple of three elements: \
+TIME_DURATION_ERROR = "Invalid time duration. Time duration has to be a list/tuple of three elements: \
     days, hours and minutes. To ommit any of those elements, type 0 \
     (eg: [0, 1, 0] for one hour duration)."
-)
 
 
 class DateSequenceError(Exception):

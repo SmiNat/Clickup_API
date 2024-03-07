@@ -6,10 +6,8 @@ from fastapi.encoders import jsonable_encoder
 from pydantic import BaseModel, Field
 from starlette import status
 
-from clickup_api.handlers import (
-    date_as_dict_to_unix_time_in_milliseconds,
-    time_as_dict_to_unix_time_in_milliseconds,
-)
+from clickup_api.handlers import (date_as_dict_to_unix_time_in_milliseconds,
+                                  time_as_dict_to_unix_time_in_milliseconds)
 
 from ..enums import Static
 from ..utils import header, validate_token

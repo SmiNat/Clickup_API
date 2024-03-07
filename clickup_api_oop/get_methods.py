@@ -5,12 +5,9 @@ import datetime
 import requests
 from dotenv import load_dotenv
 
-from clickup_api.handlers import (
-    check_and_adjust_list_length,
-    check_boolean,
-    check_integer_list,
-    datetime_to_unix_time_in_milliseconds,
-)
+from clickup_api.handlers import (check_and_adjust_list_length, check_boolean,
+                                  check_integer_list,
+                                  datetime_to_unix_time_in_milliseconds)
 
 from .main import ClickUpAPI
 

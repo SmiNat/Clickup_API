@@ -132,3 +132,82 @@ class ClickUpDELETEMethods(ClickUpAPI):
             url, headers=self.header(token=token, content_type="appliaction/json")
         )
         return response.status_code
+
+    def delete_task_link(
+        self,
+        task_id: str,
+        links_to: str,
+        custom_task_ids: bool = False,
+        team_id: int | None = None,
+        token: str | None = None,
+    ) -> int:
+        """
+        Execute DELETE request - remove the link between two tasks.
+        More info: https://clickup.com/api/clickupreference/operation/DeleteTaskLink/
+
+        Args:
+            task_id (str)
+            links_to (str)
+            custom_task_ids (bool): If you want to reference a task by it's \
+                custom task ID, this value must be set to True. Defaults to False.
+            team_id (int | None, optional): Only used when the custom_task_ids \
+                parameter is set to True. Defaults to None.
+            token (str | None, optional): Token for request authentication. \
+                If None, uses token of an instance. Defaults to None.
+        Returns: response status code.
+        """
+        url = self.api_url + "task/" + str(task_id) + "/link/" + str(links_to)
+
+        custom_task_ids = "true" if team_id or custom_task_ids else "false"
+
+        query = {"custom_task_ids": custom_task_ids, "team_id": team_id}
+
+        response = requests.delete(
+            url,
+            params=query,
+            headers=self.header(token=token, content_type="appliaction/json"),
+        )
+        return response.status_code
+
+    def delete_dependency(
+        self,
+        task_id: str,
+        depends_on: str | None = None,
+        dependency_of: str | None = None,
+        custom_task_ids: bool = False,
+        team_id: int | None = None,
+        token: str | None = None,
+    ) -> int:
+        """
+        Execute DELETE request - remove the dependency relationship between two or more tasks.
+        More info: https://clickup.com/api/clickupreference/operation/DeleteDependency/
+
+        Args:
+            task_id (str)
+            depends_on (str, optional)
+            dependency_of (str, optional)
+            custom_task_ids (bool): If you want to reference a task by it's \
+                custom task ID, this value must be set to True. Defaults to False.
+            team_id (int | None, optional): Only used when the custom_task_ids \
+                parameter is set to True. Defaults to None.
+            token (str | None, optional): Token for request authentication. \
+                If None, uses token of an instance. Defaults to None.
+        Returns: response status code.
+        """
+        url = self.api_url + "task/" + str(task_id) + "/dependency"
+
+        custom_task_ids = "true" if team_id or custom_task_ids else "false"
+
+        query = {
+            "depends_on": depends_on,
+            "dependency_of": dependency_of,
+            "custom_task_ids": custom_task_ids,
+            "team_id": team_id,
+        }
+
+        response = requests.delete(
+            url,
+            params=query,
+            headers=self.header(token=token, content_type="appliaction/json"),
+        )
+        return response.status_code

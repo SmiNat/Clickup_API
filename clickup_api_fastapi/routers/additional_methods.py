@@ -8,20 +8,12 @@ from starlette import status
 
 from clickup_api.handlers import split_int_array
 from clickup_api_fastapi.routers.get_methods import (
-    get_authorized_teams_workspaces,
-    get_task,
-    get_time_entries,
-)
+    get_authorized_teams_workspaces, get_task, get_time_entries)
 
 from ..utils import validate_token
-from .post_put_methods import (
-    CreateChecklist,
-    CreateChecklistItem,
-    CreateTaskFullRequest,
-    create_checklist,
-    create_checklist_item,
-    create_task,
-)
+from .post_put_methods import (CreateChecklist, CreateChecklistItem,
+                               CreateTaskFullRequest, create_checklist,
+                               create_checklist_item, create_task)
 
 router = APIRouter(tags=["ClickUp additional (mixed) methods"])
 

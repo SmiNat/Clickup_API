@@ -2,11 +2,9 @@ import datetime
 
 import requests
 
-from clickup_api.handlers import (
-    check_boolean,
-    datetime_to_unix_time_in_milliseconds,
-    time_estimate_to_unix_time_in_milliseconds,
-)
+from clickup_api.handlers import (check_boolean,
+                                  datetime_to_unix_time_in_milliseconds,
+                                  time_estimate_to_unix_time_in_milliseconds)
 
 from .get_methods import ClickUpGETMethods
 

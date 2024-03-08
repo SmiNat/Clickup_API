@@ -32,9 +32,9 @@ class TimeEstimate(BaseModel):
 
 class CustomFields(BaseModel):
     id: str = Field(
-        description="Field id", examples=["abcd1234-xzy1-987a-11bb-abd1234xyz987"]
+        description="Field id", examples=[None, "abcd1234-xzy1-987a-11bb-abd1234xyz987"]
     )
-    value: str | int = Field(examples=["String to added to a Custom Field"])
+    value: str | int = Field(examples=[None, "String to added to a Custom Field"])
 
 
 class EditAssignees(BaseModel):
@@ -70,7 +70,7 @@ class CreateTaskFullRequest(TaskBasicRequest):
     tags: list[str] | None = Field(default=None, examples=[["bugs", "backend"]])
     notify_all: bool = False
     links_to: str | None = Field(
-        default=None, description="ID of a task", examples=[None]
+        default=None, description="ID of the task to link", examples=[None]
     )
     check_required_custom_fields: bool = False
     custom_fields: list[CustomFields] | None = Field(
@@ -156,10 +156,10 @@ class ChatViewComment(BaseModel):
 
 class TaskDependency(BaseModel):
     depends_on: str | None = Field(
-        default=None, description="ID of a task", examples=[None]
+        default=None, description="ID of the task", examples=[None]
     )
     dependency_of: str | None = Field(
-        default=None, description="ID of a task", examples=[None]
+        default=None, description="ID of the task", examples=[None]
     )
 
 
@@ -252,7 +252,7 @@ async def edit_task(
 async def add_task_link(
     task_id: str,
     links_to: str = Path(
-        description="ID of a task to link",
+        description="ID of the task to link",
     ),
     custom_task_ids: bool = False,
     team_id: int | None = None,
@@ -443,18 +443,15 @@ async def edit_checklist_item(
     url = f"{URL}/checklist/{str(checklist_id)}/checklist_item/{str(checklist_item_id)}"
 
     item_encoded = jsonable_encoder(item)
-    # print("✅ item:", item_encoded)
 
     if not item_encoded["name"] or not item_encoded["assignee"]:
         task = await get_task(task_id)
-        # print("✅ task:", task)
         for checklist in task["checklists"]:
             if checklist["id"] == checklist_id:
                 task_checklist = checklist
                 break
         for item in task_checklist["items"]:
             if item["id"] == checklist_item_id:
-                # print("✅ item:", item)
                 name = item["name"]
                 assignee = None if not item["assignee"] else item["assignee"]["id"]
                 break
@@ -463,8 +460,6 @@ async def edit_checklist_item(
         item_encoded["name"] = name
     if not item_encoded["assignee"]:
         item_encoded["assignee"] = None if item_encoded["remove_assignee"] else assignee
-
-    # print("✅ item updated", item_encoded)
 
     response = requests.put(url, headers=header(token), json=item_encoded)
     if not response.status_code < 400:

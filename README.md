@@ -102,6 +102,7 @@ To start a FastAPI based on ClickUp API use commend:
 ### Most common ClickUp errors returned while using API
 
     ECODE           Status  Message/meaning
+    22P02           500     Invalid input syntax for type uuid: [id]
     ACCESS_083      401     Not found / You do not have access to this task.
     ACCESS_190      404     Not found.
     APP_001         404     Route not found - check if all required parameters are given.
@@ -118,8 +119,9 @@ To start a FastAPI based on ClickUp API use commend:
     ITEMV2_003      500     Internal server error - can be caused by incorrect data type or
                             incorrect value (eg. 'order by' non-existing type name or typing
                             string instead of a list or an integer).
-    JSON_001        400     Unexpected token n in JSON at position 0 - usually due to the lack
-                            of one of required parameters
+    JSON_001        400     Unexpected token [value] in JSON at position [number] -
+                            usually due to the lack of one of required body parameters or
+                            invalid JSON (eg. extra comma)
     LOC_008         400     Unsupported Entity - probably caused by using token with not high
                             enough credentials. Try to use token with higher access or narrow down
                             request by using query parameters.

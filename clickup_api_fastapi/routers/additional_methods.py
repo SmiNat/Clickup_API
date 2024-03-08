@@ -1,7 +1,7 @@
 import datetime
 from typing import Annotated, Any
 
-from fastapi import APIRouter, HTTPException, Query
+from fastapi import APIRouter, Body, HTTPException, Query, Response
 from fastapi.encoders import jsonable_encoder
 from pydantic import BaseModel
 from starlette import status
@@ -15,7 +15,7 @@ from .post_put_methods import (CreateChecklist, CreateChecklistItem,
                                CreateTaskFullRequest, create_checklist,
                                create_checklist_item, create_task)
 
-router = APIRouter(tags=["ClickUp additional (mixed) methods"])
+router = APIRouter(tags=["ClickUp additional (mixed) methods"], prefix="/additional")
 
 
 class Checklists(CreateChecklist):
@@ -126,7 +126,7 @@ async def request_assignee_by_username(username: str, token: str | None) -> int:
     return assignee
 
 
-@router.get("/additional/user_worktime", status_code=status.HTTP_200_OK)
+@router.get("/user_worktime", status_code=status.HTTP_200_OK)
 async def user_worktime(
     start_date: Annotated[
         str | None,
@@ -191,7 +191,7 @@ async def user_worktime(
     return duration_per_user
 
 
-@router.get("/additional/user_tasks")
+@router.get("/user_tasks")
 async def user_tasks(
     username: str,
     start_date: Annotated[
@@ -315,8 +315,60 @@ async def user_tasks(
     return user_tasks
 
 
+@router.post("/add/multiple_checklist_items", status_code=status.HTTP_201_CREATED)
+async def create_checklist_items(
+    task_id: str | None = None,
+    checklist_id: str | None = None,
+    checklist_name: str | None = None,
+    checklist_items: list[CreateChecklistItem] = Body(
+        description="For multiple items use multiple dictionaries with 'name' and 'assignee' values.",
+    ),
+    custom_task_ids: bool = False,
+    team_id: int | None = None,
+    token: str | None = None,
+):
+    """
+    Add many items to a checklist. Use 'task_id' and 'checklist_name' to create a new
+    checklist for items or use 'checklist_id' to add items to the existing checklist.
+    """
+    if (not task_id and not checklist_id) or (task_id and checklist_id):
+        raise HTTPException(
+            status_code=status.HTTP_406_NOT_ACCEPTABLE,
+            detail="Either 'task_id' or 'checklist_id' must be set (not both).",
+        )
+    if checklist_name and checklist_id:
+        raise HTTPException(
+            status_code=status.HTTP_406_NOT_ACCEPTABLE,
+            detail="Set either 'checklist_name' or 'checklist_id', not both.",
+        )
+    if (task_id and not checklist_name) or (checklist_name and not task_id):
+        raise HTTPException(
+            status_code=status.HTTP_406_NOT_ACCEPTABLE,
+            detail="For creating a new checklist with items, both team_id' "
+            "and 'checklist_name' are required.",
+        )
+
+    if task_id:
+        new_checklist = await create_checklist(
+            task_id,
+            name={"name": checklist_name},
+            custom_task_ids=custom_task_ids,
+            team_id=team_id,
+            token=token,
+        )
+        # print("✅ new_checklist: ", new_checklist)
+
+        checklist_id = new_checklist["checklist"]["id"]
+
+    for item in checklist_items:
+        new_item = await create_checklist_item(checklist_id, item, token)
+        # print("✅ new_item: ", new_item)
+
+    return Response(status_code=status.HTTP_201_CREATED)
+
+
 @router.post(
-    "/additional/add/task_comprehensive",
+    "/add/task_comprehensive",
     name="Create task with checklists and checklist items",
     status_code=status.HTTP_201_CREATED,
 )
@@ -360,7 +412,6 @@ async def create_task_with_checklist_items(
         checklist_id = new_checklist["checklist"]["id"]
 
         for item in checklist["items"]:
-
             new_item = await create_checklist_item(checklist_id, item, token)
             # print("✅ new_item: ", new_item)
 

@@ -175,7 +175,7 @@ class ClickUpDELETEMethods(ClickUpAPI):
         message = {} if response.encoding is None else response.json()
         return {"status code": response.status_code, "message": message}
 
-    def delete_dependency(
+    def delete_task_dependency(
         self,
         task_id: str,
         depends_on: str | None = None,

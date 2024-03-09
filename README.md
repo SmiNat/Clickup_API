@@ -17,6 +17,7 @@ https://help.clickup.com/hc/en-us/articles/13856392825367-Intro-to-the-Hierarchy
 In practice:
 ![Clickup Project Hierarchy](clickup_api_screenshots/project_hierarchy.png)
 
+
 ## Getting credentials
 ### Token
 
@@ -32,7 +33,6 @@ https://clickup.com/api/developer-portal/authentication/
 ![Postman - token use](clickup_api_screenshots/token_postman.png)
 
 ### ClickUpAPI Class (OOP)
-
 Using ClickUp API via Python class ClickUpAPI requires token as an authentication key.
 There are two ways of using token credentials in ClickUpAPI class:
 
@@ -41,7 +41,7 @@ There are two ways of using token credentials in ClickUpAPI class:
         instance_name = ClickUpAPI(token=token_value)
 
     An instance cannot be created without a token. Validation of token credentials is
-    executed at request calls made at the use of class methods.
+    executed at request calls made with the use of each method.
     Token used at instance initiation is a default token used in request header and
     therefore can be used to all class methods.
 
@@ -55,23 +55,40 @@ There are two ways of using token credentials in ClickUpAPI class:
     set, request will use token value used to initiate an instance.
 
 ### ClickUpAPI - FastAPI
-
-For FastAPI methods token is set in get_methods.py file. Request header always uses the token
-and the basic url address set in get_methods.py file.
+For FastAPI methods token is set in enums.py file or in each endpoint.
+Request header always uses the token given at a each request endpoint. If user does not
+wish to set token for each request, token query parameter can be ommited (None value)
+as long as there is a token specified in enums.py file.
 
 To start a FastAPI based on ClickUp API use commend:
 > uvicorn clickup_api_fastapi.main:app --reload
 
+
+## ClickUp API main URL address
+*https://app.clickup.com/api/v2*
+
+### ClickUpAPI Class (OOP)
+Basic url address for each request is set in main.py file in ClickUpAPI class.
+
+### ClickUpAPI - FastAPI
+Basic url address for each request is set in enums.py file.
+
+
 ## Methods based on ClickUp API
 
-### ClickUp requests implemented
-#### GET requests - implemented method
+### ClickUp requests implemented in OOP / FastAPI
+
+#### GET request                        - implemented method
 - GET Authorized Teams (Workspaces)     - get_authorized_teams_workspaces
 - GET Authorized User                   - get_authorized_user
 - GET Teams                             - get_teams
 - GET Spaces                            - get_spaces
+- GET Space                             - get_space
 - GET Folders                           - get_folders
+- GET Folder                            - get_folder
 - GET Lists                             - get_lists
+- GET List                              - get_list
+- GET Folderless Lists                  - get_folderless_lists
 - GET Tasks                             - get_tasks
     - Note: custom_fields parameter not implemented
 - GET Task                              - get_task
@@ -82,6 +99,29 @@ To start a FastAPI based on ClickUp API use commend:
 - GET Chat View Comments                - get_chat_view_comments
 - GET Custom Task Types                 - get_custom_task_types
 - GET Accessible Custom Fields          - get_accessible_custom_fields
+
+#### POST/PUT request                   - implemented method
+- POST Create Task                      - create_task
+- PUT Update Task                       - edit_task
+- POST Create Checklist                 - create_checklist
+- PUT Edit Checklist                    - edit_checklist
+- POST Create Checklist Item            - create_checklist_item
+- PUT Edit Checklist Item               - edit_checklist_item
+- POST Create Task Comment              - create_task_comment
+- POST Create List Comment              - create_list_comment
+- POST Create Chat View Comment         - create_chat_view_comment
+- PUT Update Comment                    - update_comment
+- POST Add Task Link                    - add_task_link
+- POST Add Task Dependency              - add_task_dependency
+
+#### DELETE request                     - implemented method
+- DELETE Comment                        - delete_comment
+- DELETE Remove Task From A List        - remove_task_from_a_list
+- DELETE Task                           - delete_task
+- DELETE Checklist                      - delete_checklist
+- DELETE Checklist Item                 - delete_checklist_item
+- DELETE Task Link                      - delete_task_link
+- DELETE Dependency                     - delete_task_dependency
 
 ### New methods for using ClikUp API requests
 - user_worktime
@@ -95,10 +135,20 @@ To start a FastAPI based on ClickUp API use commend:
     Use 'team_id' parameter to indicate workspaces from which tasks should be obtained.
     Use 'start_date' and 'end_date' parameters to select the time at which the tasks
     were conducted.
--
+- create_checklist_items
+    - To simultaneously add many items to a single checklist.
+    Use 'task_id' and 'checklist_name' to first create a new checklist and then to add
+    items to it or use 'checklist_id' to add items to the existing checklist.
+    Use 'checklist_items' (list) to add many items at once (each checklist item must
+    contain 'name' (required) and can contain 'assignee' (optional)).
+- create_task_with_checklist_and_items
+    - To add a new task with new checklist with items in one request.
+    Combines three post methods (create_task, create_checklist and create_checklist_item)
+    in single request.
 
 
 ## ClickUp error messages
+
 ### Most common ClickUp errors returned while using API
 
     ECODE           Status  Message/meaning

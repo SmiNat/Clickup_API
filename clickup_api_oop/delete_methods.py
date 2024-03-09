@@ -9,7 +9,7 @@ class ClickUpDELETEMethods(ClickUpAPI):
         self,
         comment_id: int,
         token: str | None = None,
-    ) -> tuple[dict | int]:
+    ) -> dict:
         """
         Execute DELETE request - delete a comment.
         More info: https://clickup.com/api/clickupreference/operation/DeleteComment/
@@ -18,21 +18,21 @@ class ClickUpDELETEMethods(ClickUpAPI):
             comment_id (str)
             token (str | None, optional): Token for request authentication. \
                 If None, uses token of an instance. Defaults to None.
-        Returns:
-            tuple [dict | int]: Returns response JSON and status code.
+        Returns: dictionary containing response status code and response message.
         """
 
         url = self.api_url + "comment/" + str(comment_id)
 
         response = requests.delete(url, headers=self.header(token=token))
-        return response.json(), response
+        message = {} if response.encoding is None else response.json()
+        return {"status code": response.status_code, "message": message}
 
     def remove_task_from_a_list(
         self,
         list_id: int,
         task_id: str,
         token: str | None = None,
-    ) -> int:
+    ) -> dict:
         """
         Execute DELETE request - remove a task from an additional List.
         You can't remove a task from its home List.
@@ -44,13 +44,14 @@ class ClickUpDELETEMethods(ClickUpAPI):
             task_id (str)
             token (str | None, optional): Token for request authentication. \
                 If None, uses token of an instance. Defaults to None.
-        Returns: response status code.
+        Returns: dictionary containing response status code and response message.
         """
 
         url = self.api_url + "list/" + str(list_id) + "/task/" + str(task_id)
 
         response = requests.delete(url, headers=self.header(token=token))
-        return response.json(), response.status_code
+        message = {} if response.encoding is None else response.json()
+        return {"status code": response.status_code, "message": message}
 
     def delete_task(
         self,
@@ -58,7 +59,7 @@ class ClickUpDELETEMethods(ClickUpAPI):
         custom_task_ids: bool = False,
         team_id: int | None = None,
         token: str | None = None,
-    ) -> int:
+    ) -> dict:
         """
         Execute DELETE request - delete a task from your Workspace.
         More info: https://clickup.com/api/clickupreference/operation/DeleteTask/
@@ -71,7 +72,7 @@ class ClickUpDELETEMethods(ClickUpAPI):
                 parameter is set to True. Defaults to None.
             token (str | None, optional): Token for request authentication. \
                 If None, uses token of an instance. Defaults to None.
-        Returns: response status code.
+        Returns: dictionary containing response status code and response message.
         """
 
         url = self.api_url + "task/" + str(task_id)
@@ -88,9 +89,11 @@ class ClickUpDELETEMethods(ClickUpAPI):
             params=query,
             headers=self.header(token=token, content_type="application/json"),
         )
-        return response.status_code
 
-    def delete_checklist(self, checklist_id: str, token: str | None = None) -> int:
+        message = {} if response.encoding is None else response.json()
+        return {"status code": response.status_code, "message": message}
+
+    def delete_checklist(self, checklist_id: str, token: str | None = None) -> dict:
         """
         Execute DELETE request - delete a checklist from a task.
         More info: https://clickup.com/api/clickupreference/operation/DeleteChecklist/
@@ -99,16 +102,17 @@ class ClickUpDELETEMethods(ClickUpAPI):
             checklist_id (str)
             token (str | None, optional): Token for request authentication. \
                 If None, uses token of an instance. Defaults to None.
-        Returns: response status code.
+        Returns: dictionary containing response status code and response message.
         """
         url = self.api_url + "checklist/" + str(checklist_id)
 
         response = requests.delete(url, headers=self.header(token=token))
-        return response.status_code
+        message = {} if response.encoding is None else response.json()
+        return {"status code": response.status_code, "message": message}
 
     def delete_checklist_item(
         self, checklist_id: str, checklist_item_id: str, token: str | None = None
-    ) -> int:
+    ) -> dict:
         """
         Execute DELETE request - delete a line item from a task checklist.
         More info: https://clickup.com/api/clickupreference/operation/DeleteChecklistItem/
@@ -118,7 +122,7 @@ class ClickUpDELETEMethods(ClickUpAPI):
             checklist_item_id (str)
             token (str | None, optional): Token for request authentication. \
                 If None, uses token of an instance. Defaults to None.
-        Returns: response status code.
+        Returns: dictionary containing response status code and response message.
         """
         url = (
             self.api_url
@@ -131,7 +135,8 @@ class ClickUpDELETEMethods(ClickUpAPI):
         response = requests.delete(
             url, headers=self.header(token=token, content_type="appliaction/json")
         )
-        return response.status_code
+        message = {} if response.encoding is None else response.json()
+        return {"status code": response.status_code, "message": message}
 
     def delete_task_link(
         self,
@@ -140,7 +145,7 @@ class ClickUpDELETEMethods(ClickUpAPI):
         custom_task_ids: bool = False,
         team_id: int | None = None,
         token: str | None = None,
-    ) -> int:
+    ) -> dict:
         """
         Execute DELETE request - remove the link between two tasks.
         More info: https://clickup.com/api/clickupreference/operation/DeleteTaskLink/
@@ -154,7 +159,7 @@ class ClickUpDELETEMethods(ClickUpAPI):
                 parameter is set to True. Defaults to None.
             token (str | None, optional): Token for request authentication. \
                 If None, uses token of an instance. Defaults to None.
-        Returns: response status code.
+        Returns: dictionary containing response status code and response message.
         """
         url = self.api_url + "task/" + str(task_id) + "/link/" + str(links_to)
 
@@ -167,7 +172,8 @@ class ClickUpDELETEMethods(ClickUpAPI):
             params=query,
             headers=self.header(token=token, content_type="appliaction/json"),
         )
-        return response.status_code
+        message = {} if response.encoding is None else response.json()
+        return {"status code": response.status_code, "message": message}
 
     def delete_dependency(
         self,
@@ -177,7 +183,7 @@ class ClickUpDELETEMethods(ClickUpAPI):
         custom_task_ids: bool = False,
         team_id: int | None = None,
         token: str | None = None,
-    ) -> int:
+    ) -> dict:
         """
         Execute DELETE request - remove the dependency relationship between two or more tasks.
         More info: https://clickup.com/api/clickupreference/operation/DeleteDependency/
@@ -192,7 +198,7 @@ class ClickUpDELETEMethods(ClickUpAPI):
                 parameter is set to True. Defaults to None.
             token (str | None, optional): Token for request authentication. \
                 If None, uses token of an instance. Defaults to None.
-        Returns: response status code.
+        Returns: dictionary containing response status code and response message.
         """
         url = self.api_url + "task/" + str(task_id) + "/dependency"
 
@@ -210,4 +216,5 @@ class ClickUpDELETEMethods(ClickUpAPI):
             params=query,
             headers=self.header(token=token, content_type="appliaction/json"),
         )
-        return response.status_code
+        message = {} if response.encoding is None else response.json()
+        return {"status code": response.status_code, "message": message}

@@ -164,7 +164,7 @@ class ClickUpPOSTMethods(ClickUpGETMethods):
         )
         return response.json() if as_json else response
 
-    def update_task(
+    def edit_task(
         self,
         task_id: str,
         custom_task_ids: bool = False,
@@ -616,7 +616,7 @@ class ClickUpPOSTMethods(ClickUpGETMethods):
     def update_comment(
         self,
         comment_id: int,
-        comment_text: str,
+        comment_text: str | None = None,
         assignee: int | str | None = None,
         resolved: bool = False,
         as_json: bool = True,

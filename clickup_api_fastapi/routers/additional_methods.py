@@ -372,7 +372,7 @@ async def create_checklist_items(
     name="Create task with checklists and checklist items",
     status_code=status.HTTP_201_CREATED,
 )
-async def create_task_with_checklist_items(
+async def create_task_with_checklist_and_items(
     list_id: str,
     task: Task,
     custom_task_ids: bool = False,

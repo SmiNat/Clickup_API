@@ -401,7 +401,7 @@ class ClickUpAdditionalMethods(ClickUpPOSTMethods):
 
         return {"status_code": 201, "detail": "Successfully created."}
 
-    def create_a_new_task_with_checklist_and_items(
+    def create_task_with_checklist_and_items(
         self,
         list_id: int,
         task_name: str,
